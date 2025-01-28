@@ -914,7 +914,6 @@ GameObject:
   m_Component:
   - component: {fileID: 131623355}
   - component: {fileID: 131623354}
-  - component: {fileID: 131623353}
   m_Layer: 0
   m_Name: PlayerInputManager
   m_TagString: Untagged
@@ -922,18 +921,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &131623353
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 131623352}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2758cb501cf9c1c4eadc61a3ae04ee9a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &131623354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -953,7 +940,7 @@ MonoBehaviour:
   m_PlayerJoinedEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 131623353}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ReceiveNotificationExample, Assembly-CSharp
         m_MethodName: OnPlayerJoined
         m_Mode: 0
@@ -968,7 +955,7 @@ MonoBehaviour:
   m_PlayerLeftEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 131623353}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ReceiveNotificationExample, Assembly-CSharp
         m_MethodName: OnPlayerLeft
         m_Mode: 0

@@ -10,6 +10,15 @@ using System.Net.Security;
 using PlayerCS;
 namespace PlayerCS
 {
+    public class Player
+    {
+        // 表示モデルの種類
+        public enum eKind
+        {
+            take_Idol,
+            okada_Idol,
+        }
+    }
     public partial class PlayerController : MonoBehaviour
     {
         [SerializeField] private LayerMask _groundLayers;
@@ -98,6 +107,8 @@ namespace PlayerCS
 
         // プレイヤーモデルの種類
         private Player.eKind _kind = Player.eKind.take_Idol;
+        // public bool IsGround { get { return IsGround(); } }
+
         public Player.eKind Kind { get { return _kind; } set { _kind = value; } }
 
         public enum ThrowType

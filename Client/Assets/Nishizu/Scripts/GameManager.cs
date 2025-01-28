@@ -61,7 +61,6 @@ public class GameManager : MonoBehaviour
     // 利用可能な機器のリスト
     private List<NetworkInterfaceData> _networkInterfaces;
 
-    // private List<PlayerBase> _players = new List<PlayerBase>();
     public GameObject _playerPrefab;
     private List<PlayerBase> _players = new List<PlayerBase>();
 
@@ -79,6 +78,14 @@ public class GameManager : MonoBehaviour
     UdpBuffer _udpTransmitter = new UdpBuffer();
     // 受信バッファ
     UdpBuffer _udpReceiver = new UdpBuffer();
+    // 受信したユーザーID
+    private byte _userIdWork = Byte.MaxValue;
+    // ユーザーID
+    private byte _userId = Byte.MaxValue;
+    // タイマー（サーバー側でパケットロスの判定などに使用する）
+    private byte _globalTimer = 0;
+    // 送信パケット
+    private Packet _paket = new Packet();
 
     // Start is called before the first frame update
     private void Awake()
@@ -164,6 +171,9 @@ public class GameManager : MonoBehaviour
             byte[] message = { 0 };
             _udpClient.Send(message, message.Length, host, _portServer);
         }
+
+        // 待ち受け開始（受信があったときOnReceivedが呼ばれる）
+        _udpClient.BeginReceive(OnReceived, _udpClient);
     }
 
     // Update is called once per frame
@@ -208,10 +218,165 @@ public class GameManager : MonoBehaviour
         //         }
         //     }
         // }
-        PlayerBase player = _offlinePlayer;
+
+        // 受信したユーザーIDを採用する
+        if (_userId != _userIdWork)
+        {
+            _userId = _userIdWork;
+        }
+
+        lock (_udpReceiver.LockObject)
+        {
+            // 受信バッファにデータがある
+            if (_udpReceiver.Buffer != null)
+            {
+                // プレイヤー数
+                int playerNum = _udpReceiver.Buffer[0];
+                // 弾丸数
+                int bulletNum = _udpReceiver.Buffer[1];
+
+                int offset = 1;
+
+                // プレイヤーが足りない場合は補充する
+                for (int i = _players.Count; i < playerNum; i++)
+                    _players.Add(new NetPlayer(_playerPrefab, this.transform));
+
+                // プレイヤー情報を読み込む
+                for (int i = 0; i < playerNum; i++)
+                    offset = _players[i].ReadByte(_udpReceiver.Buffer, offset);
+
+                // プレイヤーリストが多いときは削除
+                if (playerNum < _players.Count)
+                {
+                    for (int i = playerNum; i < _players.Count; i++)
+                    {
+                        GameObject.Destroy(_players[i].Obj);
+                        _players[i].Obj = null;
+                    }
+                    _players.RemoveRange(playerNum, _players.Count - playerNum);
+                }
+
+                // // 弾丸が足りない場合は補充する
+                // for (int i = _bullets.Count; i < bulletNum; i++)
+                //     _bullets.Add(new Bullet(_bulletPrefab, this.transform, true));
+
+                // // 弾丸情報を読み込む
+                // for (int i = 0; i < bulletNum; i++)
+                //     offset = _bullets[i].ReadByte(_udpReceiver.Buffer, offset);
+
+                // // 弾丸リストが多いときは削除
+                // if (bulletNum < _bullets.Count)
+                // {
+                //     for (int i = bulletNum; i < _bullets.Count; i++)
+                //     {
+                //         GameObject.Destroy(_bullets[i].Obj);
+                //         _bullets[i].Obj = null;
+                //     }
+                //     _bullets.RemoveRange(bulletNum, _bullets.Count - bulletNum);
+                // }
+
+                // 受信バッファを解放
+                _udpReceiver.Buffer = null;
+            }
+        }
+
+        bool isNetwork = _userId != byte.MaxValue;
+
+        // ネットワーク接続中はリストから自分のIDを探し、それをプレイヤーとして使う
+        PlayerBase player = !isNetwork ? null : _players.Find(x => x.Id == _userId);
+        // IDが見つからなかった場合やオフラインのときは_offlinePlayerをプレイヤーとして使う
+        if (player == null)
+        {
+            player = _offlinePlayer;
+            isNetwork = false;
+        }
+        // ネットワーク接続の有無で_offlinePlayerを無効（有効）にする
+        _offlinePlayer.SetActive(!isNetwork);
 
         // Playerの更新
         player.Update(_playerInput);
+
+        // // 弾丸
+        // {
+        //     if (player.IsFire)
+        //     {
+        //         // 弾丸を作成
+        //         Bullet bullet = new Bullet(_bulletPrefab, player.Obj.transform.parent, false);
+        //         {
+        //             // 衝突判定用レイヤーをプレイヤーをプレイヤーと同じにする
+        //             bullet.Obj.layer = player.Obj.layer;
+        //             // 位置と姿勢はプレイヤーからコピー
+        //             bullet.Obj.transform.position = player.Obj.transform.Find("Model").transform.position;
+        //             bullet.Obj.transform.rotation = player.Obj.transform.Find("Model").transform.rotation;
+        //             // 初速度を与える
+        //             Vector3 force = bullet.Obj.transform.rotation * new Vector3(0, 0, 1000);
+        //             bullet.Obj.GetComponent<Rigidbody>().AddForce(force);
+        //         }
+        //         // 弾丸管理リストに登録
+        //         _bullets.Add(bullet);
+        //     }
+
+        //     // 削除リスト
+        //     List<Bullet> listDelete = new List<Bullet>();
+
+        //     // 全ての弾丸
+        //     foreach (var bullet in _bullets)
+        //     {
+        //         BulletController bc = bullet.Obj.GetComponent<BulletController>();
+        //         // 弾丸の寿命が尽きていたら削除リストに登録する
+        //         if (bc.LifeTime < 0.0f)
+        //         {
+        //             listDelete.Add(bullet);
+        //         }
+        //     }
+
+        //     // 削除リストに詰まれた弾丸を削除する
+        //     foreach (var item in listDelete)
+        //     {
+        //         Destroy(item.Obj.gameObject);
+        //         _bullets.Remove(item);
+        //     }
+        // }
+
+        // タイマー、入力、フォースをパケットに詰む
+        _paket.Push(_globalTimer, player.InputMask, player.Force);
+
+        // IDが振られていたらサーバーにデータを送信
+        if (_userId != Byte.MaxValue)
+        {
+            List<byte> buffer = new List<byte>();
+
+            // ID
+            buffer.Add(_userId);
+            // パケット
+            buffer.AddRange(_paket.GetBytes());
+
+            // 送信
+            _udpClient.Send(buffer.ToArray(), buffer.Count, host, _portServer);
+        }
+
+        // {
+        //     // カメラの注視点にプレイヤー位置をコピー
+        //     _cameraTarget.transform.position = player.Obj.transform.position;
+
+        //     // プレイヤー切り替えやリセットが発生していたら
+        //     if (player.IsChangeCharacter | player.IsReset)
+        //     {
+        //         Quaternion q = player.Obj.transform.rotation;
+        //         Vector3 startPos = player.Obj.transform.position + q * new Vector3(0, 3, -5);
+        //         // カメラを即時プレイヤー後方に切り替え
+        //         _cinemachineVirtualCamera1.ForceCameraPosition(startPos, q);
+        //         // 補間を無効にする
+        //         _cinemachineVirtualCamera1.PreviousStateIsValid = false;
+        //     }
+        //     else
+        //     {
+        //         // 補間を有効にする
+        //         _cinemachineVirtualCamera1.PreviousStateIsValid = true;
+        //     }
+        // }
+
+        _globalTimer++;
     }
     /// <summary>
     ///ゲームマネージャー初期化
@@ -250,6 +415,43 @@ public class GameManager : MonoBehaviour
     //     }
     //     return true;
     // }
+
+    private void OnReceived(System.IAsyncResult result)
+    {
+        UdpClient getUdp = (UdpClient)result.AsyncState;
+        IPEndPoint ipEnd = null;
+
+        if (getUdp.Client == null)
+        {
+            return;
+        }
+
+        // ロックしてから受信したByte配列を読み取る
+        lock (_udpReceiver.LockObject)
+        {
+            try
+            {
+                _udpReceiver.Buffer = getUdp.EndReceive(result, ref ipEnd);
+
+                // 1byteのときはIDを取り出して破棄
+                if (_udpReceiver.Buffer.Length <= 1)
+                {
+                    _userIdWork = _udpReceiver.Buffer[0];
+                    _udpReceiver.Buffer = null;
+                }
+            }
+            catch
+            {
+                _udpReceiver.Buffer = null;
+            }
+        }
+
+        getUdp.BeginReceive(OnReceived, getUdp);
+    }
+    private void Dispose()
+    {
+        _udpClient.Dispose();
+    }
     /// <summary>
     /// ハプニングボールの生成位置をランダムで取得
     /// </summary>

@@ -62,7 +62,7 @@ public abstract class PlayerBase
     public virtual void Update(PlayerInput input)
     {
         // アナログレバーの値
-        _inputValue = input.InputValue * 5;
+        _inputValue = input.InputValue;
 
         // PlayerInputから入力のマスクを作成
         _inputMask = 0;

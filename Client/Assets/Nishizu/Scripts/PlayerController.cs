@@ -346,7 +346,7 @@ namespace PlayerCS
         public void Sleep()
         {
             // Colliderを無効化
-            GetComponent<SphereCollider>().enabled = false;
+            GetComponent<CapsuleCollider>().enabled = false;
             // Rigidbodyを無効化（位置を姿勢指定のみで動かす）
             GetComponent<Rigidbody>().isKinematic = true;
         }
@@ -355,7 +355,7 @@ namespace PlayerCS
         public void WakeUp()
         {
             // Colliderを有効化
-            GetComponent<SphereCollider>().enabled = true;
+            GetComponent<CapsuleCollider>().enabled = true;
             // Rigidbodyを有効化
             GetComponent<Rigidbody>().isKinematic = false;
         }
