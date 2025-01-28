@@ -234,6 +234,10 @@ public class Server : MonoBehaviour
     labelEnd:
         getUdp.BeginReceive(OnReceived, getUdp);
     }
+    private void OnApplicationQuit()
+    {
+        Dispose();
+    }
     private void Dispose()
     {
         _udpClient.Dispose();

@@ -448,9 +448,18 @@ public class GameManager : MonoBehaviour
 
         getUdp.BeginReceive(OnReceived, getUdp);
     }
+    private void OnApplicationQuit()
+    {
+        Dispose();
+    }
     private void Dispose()
     {
-        _udpClient.Dispose();
+        if (_udpClient != null)
+        {
+            _udpClient.Close();
+            _udpClient.Dispose();
+            _udpClient = null;
+        }
     }
     /// <summary>
     /// ハプニングボールの生成位置をランダムで取得
