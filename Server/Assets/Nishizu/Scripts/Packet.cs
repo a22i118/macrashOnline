@@ -25,13 +25,12 @@ public class PacketData
         Throw = 1 << 1,
         PickUp = 1 << 2,
         Menu = 1 << 3,
-        // ChangeCharacter = 1 << 2,
     }
 
     [Flags]
     public enum eStateMask : byte
     {
-        Ground = 1 << 3,
+        Ground = 1 << 4,
     }
 
     private byte _timer = 0;

@@ -62,7 +62,6 @@ public class GameManager : MonoBehaviour
     private List<NetworkInterfaceData> _networkInterfaces;
 
     public GameObject _playerPrefab;
-    public GameObject _bulletPrefab;
 
     private List<PlayerBase> _players = new List<PlayerBase>();
 

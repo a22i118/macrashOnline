@@ -70,7 +70,7 @@ public abstract class PlayerBase
         if (input.IsThrow) { _inputMask |= PacketData.eInputMask.Throw; }
         if (input.IsJump) { _inputMask |= PacketData.eInputMask.Jump; }
         // 使い終わったPlayerInputの状態は初期化
-        input.Reset();
+        // input.Reset();
 
         // forceを計算する
         _playerController.UpdateForce(this);

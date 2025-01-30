@@ -16,8 +16,6 @@ public class PlayerInput : MonoBehaviour
     public bool IsJump { get { return _isJump; } }
     public bool IsPickUp { get { return _isPickUp; } }
 
-    public void Reset() { _isJump = _isThrow = false; }
-
     private void OnMove(InputAction.CallbackContext context)
     {
         _inputValue = context.ReadValue<Vector2>();
@@ -25,18 +23,37 @@ public class PlayerInput : MonoBehaviour
 
     private void OnThrow(InputAction.CallbackContext context)
     {
-        _isThrow = true;
+        if (context.started)
+        {
+            _isThrow = true;
+        }
+        else if (context.canceled)
+        {
+            _isThrow = false;
+        }
     }
-
     private void OnJump(InputAction.CallbackContext context)
     {
-        _isJump = true;
+        if (context.started)
+        {
+            _isJump = true;
+        }
+        else if (context.canceled)
+        {
+            _isJump = false;
+        }
     }
     private void OnPickUp_Catch_WakeUp(InputAction.CallbackContext context)
     {
-        _isPickUp = true;
+        if (context.performed)
+        {
+            _isPickUp = true;
+        }
+        else if (context.canceled)
+        {
+            _isPickUp = true;
+        }
     }
-
 
     private void Awake()
     {
@@ -47,9 +64,13 @@ public class PlayerInput : MonoBehaviour
         _inputActions.Player.Move.canceled += OnMove;
 
         _inputActions.Player.Throw.performed += OnThrow;
+        _inputActions.Player.Throw.canceled += OnThrow;
 
-        _inputActions.Player.Jump.performed += OnJump;
+        _inputActions.Player.Jump.started += OnJump;
+        _inputActions.Player.Jump.canceled += OnJump;
+
         _inputActions.Player.PickUp_Catch_WakeUp.performed += OnPickUp_Catch_WakeUp;
+        _inputActions.Player.PickUp_Catch_WakeUp.canceled += OnPickUp_Catch_WakeUp;
 
         _inputActions.Enable();
     }

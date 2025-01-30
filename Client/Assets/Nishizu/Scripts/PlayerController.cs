@@ -166,17 +166,19 @@ namespace PlayerCS
                 {
                     if (anim)
                     {
-                        // 0.25乗しているのは単なる調整のため
-                        // float animSpeed = Mathf.Pow(_speed, 0.25f);
-                        // anim.SetFloat("Speed", animSpeed);
-                        anim.SetFloat("Speed", _speed / 3);
-                        anim.SetBool("Walk", true);
-
+                        if (_speed > 0.1f)
+                        {
+                            // 0.25乗しているのは単なる調整のため
+                            anim.SetBool("Walk", true);
+                            float animSpeed = Mathf.Pow(_speed, 0.5f);
+                            anim.SetFloat("Speed", animSpeed);
+                            // anim.SetFloat("Speed", _speed);
+                        }
+                        else
+                        {
+                            anim.SetBool("Walk", false);
+                        }
                     }
-                }
-                else
-                {
-                    // anim.SetBool("Walk", false);
                 }
             }
 

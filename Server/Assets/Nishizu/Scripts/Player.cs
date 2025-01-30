@@ -18,6 +18,11 @@ public class Player
         take_Idol,
         okada_Idol,
     }
+    private bool _isJumping = false;
+    private float _jumpHoldTime = 0.0f;
+    private const float c_minJumpForce = 6.5f;
+    private const float c_maxJumpForce = 9.0f;
+    private const float c_maxJumpHoldTime = 0.2f;
 
     // タイムアウトまでのフレーム数
     private const int c_timeout = 600;
@@ -39,6 +44,7 @@ public class Player
     protected Quaternion _lastDir = Quaternion.identity;
     // ボタン入力をマスクにしたもの
     private PacketData.eInputMask _inputMask = 0;
+    private PacketData.eInputMask _lastInputMask = 0;
     // 状態を表すマスク
     protected PacketData.eStateMask _stateMask = 0;
 
@@ -67,11 +73,13 @@ public class Player
     {
         Vector3 force = new Vector3();
         Vector3 velocity = new Vector3();
-        PacketData.eInputMask inputMask = 0;
+        PacketData.eInputMask inputMask = _lastInputMask;
+
 
         lock (_lockObject)
         {
             byte timer;
+
             for (timer = _execTimer; timer != _receiveTimer; timer++)
             {
                 PacketData p = _packets.Find(packet => timer == packet.Timer);
@@ -79,24 +87,26 @@ public class Player
                 {
                     _execTimer = timer;
                     velocity = new Vector3(p.Movement.x, 0, p.Movement.y);
-                    inputMask |= p.InputMask;
+                    inputMask = p.InputMask;
                     _packets.Remove(p);
                 }
             }
-            for (byte i = 0; i < 3; i++)
-            {
-                PacketData p = _packets.Find(packet => (timer + i) == packet.Timer);
-                if (p != null)
-                {
-                    _execTimer = (byte)(timer + i);
-                    velocity = new Vector3(p.Movement.x, 0, p.Movement.y);
-                    inputMask |= p.InputMask;
-                    _packets.Remove(p);
-                }
-            }
+
+            // for (byte i = 0; i < 3; i++)
+            // {
+            //     PacketData p = _packets.Find(packet => (timer + i) == packet.Timer);
+            //     if (p != null)
+            //     {
+            //         _execTimer = (byte)(timer + i);
+            //         velocity = new Vector3(p.Movement.x, 0, p.Movement.y);
+            //         inputMask |= p.InputMask;
+            //         _packets.Remove(p);
+            //     }
+            // }
         }
 
         _inputMask = inputMask;
+
         _stateMask = 0;
 
         if (_obj == null)
@@ -106,24 +116,10 @@ public class Player
             _playerController = _obj.GetComponent<PlayerController>();
         }
 
-        Vector3 dir = _obj.transform.position - _lastPos;
+        Jump();
+        Move(velocity);
 
-        dir.y = 0.0f;
-
-        if (dir != Vector3.zero)
-        {
-            _obj.transform.rotation = Quaternion.Slerp(_lastDir, Quaternion.LookRotation(dir), Mathf.Clamp(0.0f, 1.0f, dir.magnitude));
-        }
-
-        _lastPos = _obj.transform.position;
-        _lastDir = _obj.transform.rotation;
-
-        if (IsGround && IsJump)
-        {
-            force.y += 24.0f * 8.0f;
-        }
-        _obj.GetComponent<Rigidbody>().AddForce(force);
-        _obj.GetComponent<Rigidbody>().velocity = velocity.normalized * 5;
+        _lastInputMask = _inputMask;
     }
 
     public void ResetTimeout() { _timeout = c_timeout; }
@@ -179,5 +175,51 @@ public class Player
         list.Add((byte)SendState);
 
         return list.ToArray();
+    }
+    private void Jump()
+    {
+        if (IsJump)
+        {
+            if (IsGround)
+            {
+                _jumpHoldTime = 0.0f;
+                _isJumping = true;
+            }
+        }
+        else
+        {
+            _isJumping = false;
+        }
+
+        if (_isJumping)
+        {
+            if (_jumpHoldTime < c_maxJumpHoldTime)
+            {
+                _jumpHoldTime += Time.deltaTime;
+            }
+            else
+            {
+                _jumpHoldTime = c_maxJumpHoldTime;
+                _isJumping = false;
+            }
+
+            float jumpForce = Mathf.Lerp(c_minJumpForce, c_maxJumpForce, _jumpHoldTime / c_maxJumpHoldTime);
+            _obj.GetComponent<Rigidbody>().velocity = new Vector3(_obj.GetComponent<Rigidbody>().velocity.x, jumpForce, _obj.GetComponent<Rigidbody>().velocity.z);
+        }
+    }
+    private void Move(Vector3 velocity)
+    {
+        Vector3 dir = _obj.transform.position - _lastPos;
+
+        dir.y = 0.0f;
+
+        if (dir != Vector3.zero)
+        {
+            _obj.transform.rotation = Quaternion.Slerp(_lastDir, Quaternion.LookRotation(dir), Mathf.Clamp(0.0f, 1.0f, dir.magnitude));
+        }
+
+        _lastPos = _obj.transform.position;
+        _lastDir = _obj.transform.rotation;
+        _obj.GetComponent<Rigidbody>().velocity = new Vector3(velocity.x * 5, _obj.GetComponent<Rigidbody>().velocity.y, velocity.z * 5);
     }
 }
