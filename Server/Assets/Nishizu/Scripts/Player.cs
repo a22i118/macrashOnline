@@ -47,9 +47,7 @@ public class Player
 
     public bool IsFire { get { return (_inputMask & PacketData.eInputMask.Throw) != 0; } }
     public bool IsJump { get { return (_inputMask & PacketData.eInputMask.Jump) != 0; } }
-    // public bool IsChangeCharacter { get { return (_inputMask & PacketData.eInputMask.ChangeCharacter) != 0; } }
     public bool IsGround { get { return _obj.GetComponent<PlayerController>().IsGround(); } }
-    public bool IsReset { get { return (_stateMask & PacketData.eStateMask.Reset) != 0; } }
 
     public PacketData.eStateMask SendState
     {
@@ -57,7 +55,6 @@ public class Player
         {
             PacketData.eStateMask stateMask = 0;
             if (IsGround) { stateMask |= PacketData.eStateMask.Ground; }
-            if (IsReset) { stateMask |= PacketData.eStateMask.Reset; }
             return stateMask;
         }
     }
@@ -69,6 +66,7 @@ public class Player
     public void Update(GameObject prefab, Transform parent)
     {
         Vector3 force = new Vector3();
+        Vector3 velocity = new Vector3();
         PacketData.eInputMask inputMask = 0;
 
         lock (_lockObject)
@@ -80,7 +78,7 @@ public class Player
                 if (p != null)
                 {
                     _execTimer = timer;
-                    force += p.Force;
+                    velocity = new Vector3(p.Movement.x, 0, p.Movement.y);
                     inputMask |= p.InputMask;
                     _packets.Remove(p);
                 }
@@ -91,7 +89,7 @@ public class Player
                 if (p != null)
                 {
                     _execTimer = (byte)(timer + i);
-                    force += p.Force;
+                    velocity = new Vector3(p.Movement.x, 0, p.Movement.y);
                     inputMask |= p.InputMask;
                     _packets.Remove(p);
                 }
@@ -106,36 +104,15 @@ public class Player
             _obj = GameObject.Instantiate(prefab);
             _obj.transform.parent = parent;
             _playerController = _obj.GetComponent<PlayerController>();
-            _stateMask |= PacketData.eStateMask.Reset;
         }
 
-        Vector3 d = _obj.transform.position - _lastPos;
+        Vector3 dir = _obj.transform.position - _lastPos;
 
-        d.y = 0.0f;
+        dir.y = 0.0f;
 
-        if (d != Vector3.zero)
+        if (dir != Vector3.zero)
         {
-            _obj.transform.rotation = Quaternion.Slerp(_lastDir, Quaternion.LookRotation(d), Mathf.Clamp(0.0f, 1.0f, d.magnitude));
-        }
-
-        bool isReset = false;
-
-        // if (IsChangeCharacter)
-        // {
-        //     _playerController.Kind = _playerController.Kind == eKind.police ? eKind.zombie : eKind.police;
-        //     _obj.layer = LayerMask.NameToLayer("Player1") + (int)_playerController.Kind;
-        //     isReset = true;
-        // }
-
-        if (_obj.transform.position.y < -8.0f)
-        {
-            isReset = true;
-        }
-
-        if (isReset)
-        {
-            _playerController.Restart();
-            _stateMask |= PacketData.eStateMask.Reset;
+            _obj.transform.rotation = Quaternion.Slerp(_lastDir, Quaternion.LookRotation(dir), Mathf.Clamp(0.0f, 1.0f, dir.magnitude));
         }
 
         _lastPos = _obj.transform.position;
@@ -146,6 +123,7 @@ public class Player
             force.y += 24.0f * 8.0f;
         }
         _obj.GetComponent<Rigidbody>().AddForce(force);
+        _obj.GetComponent<Rigidbody>().velocity = velocity.normalized * 5;
     }
 
     public void ResetTimeout() { _timeout = c_timeout; }

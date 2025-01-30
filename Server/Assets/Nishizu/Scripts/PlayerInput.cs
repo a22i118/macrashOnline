@@ -8,36 +8,35 @@ public class PlayerInput : MonoBehaviour
 {
     private @PlayerInputActions _inputActions;
     private Vector2 _inputValue = new Vector2();
-    private bool _isFire = false;
+    private bool _isPickUp = false;
+    private bool _isThrow = false;
     private bool _isJump = false;
-    private bool _isChangeCharacter = false;
-
-    public Vector3 InputValue { get { return _inputValue; } }
-    public bool IsFire { get { return _isFire; } }
+    public Vector2 InputValue { get { return _inputValue; } }
+    public bool IsThrow { get { return _isThrow; } }
     public bool IsJump { get { return _isJump; } }
-    public bool IsChangeCharacter { get { return _isChangeCharacter; } }
+    public bool IsPickUp { get { return _isPickUp; } }
 
-    public void Reset() { _isJump = _isFire = _isChangeCharacter = false; }
+    public void Reset() { _isJump = _isThrow = false; }
 
     private void OnMove(InputAction.CallbackContext context)
     {
         _inputValue = context.ReadValue<Vector2>();
     }
 
-    private void OnFire(InputAction.CallbackContext context)
+    private void OnThrow(InputAction.CallbackContext context)
     {
-        _isFire = true;
+        _isThrow = true;
     }
 
     private void OnJump(InputAction.CallbackContext context)
     {
         _isJump = true;
     }
-
-    private void OnChangeCharacter(InputAction.CallbackContext context)
+    private void OnPickUp_Catch_WakeUp(InputAction.CallbackContext context)
     {
-        _isChangeCharacter = true;
+        _isPickUp = true;
     }
+
 
     private void Awake()
     {
@@ -47,11 +46,10 @@ public class PlayerInput : MonoBehaviour
         _inputActions.Player.Move.performed += OnMove;
         _inputActions.Player.Move.canceled += OnMove;
 
-        _inputActions.Player.Throw.performed += OnFire;
+        _inputActions.Player.Throw.performed += OnThrow;
 
         _inputActions.Player.Jump.performed += OnJump;
-
-        // _inputActions.Player.ChangeCharacter.performed += OnChangeCharacter;
+        _inputActions.Player.PickUp_Catch_WakeUp.performed += OnPickUp_Catch_WakeUp;
 
         _inputActions.Enable();
     }

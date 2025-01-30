@@ -200,41 +200,41 @@ namespace PlayerCS
                 //     _currentMakuraDisplays[1].SetActive(true);
                 //     _currentMakuraDisplays[1].transform.GetChild(0).gameObject.SetActive(false);
                 // }
-                if (IsHuton() || _currentMakuras.Count > 0 && _isThrowKeyPushed && _currentMakuras[0].GetComponent<MakuraController>().CurrentColorType == ColorChanger.ColorType.Nomal)
-                {
-                    if (_isSpeedUp)
-                    {
-                        _speed = 4.0f;
-                    }
-                    else
-                    {
-                        _speed = 2.0f;
-                    }
-                }
-                else
-                {
-                    if (_isSpeedUp)
-                    {
-                        _speed = 6.0f;
-                    }
-                    else
-                    {
-                        _speed = 4.0f;
-                    }
-                }
-                if (!_isHitStop && !_isVibrating && !_isTeacherMakuraHit)
-                {
-                    if (!_isSleep)
-                    {
-                        Move();
-                        Jump();
-                        if (_isGameStart)
-                        {
-                            MakuraThrow();
-                        }
-                    }
-                    Sleep_WakeUp();
-                }
+                //if (IsHuton() || _currentMakuras.Count > 0 && _isThrowKeyPushed && _currentMakuras[0].GetComponent<MakuraController>().CurrentColorType == ColorChanger.ColorType.Nomal)
+                //{
+                //    if (_isSpeedUp)
+                //    {
+                //        _speed = 4.0f;
+                //    }
+                //    else
+                //    {
+                //        _speed = 2.0f;
+                //    }
+                //}
+                //else
+                //{
+                //    if (_isSpeedUp)
+                //    {
+                //        _speed = 6.0f;
+                //    }
+                //    else
+                //    {
+                //        _speed = 4.0f;
+                //    }
+                //}
+                //if (!_isHitStop && !_isVibrating && !_isTeacherMakuraHit)
+                //{
+                //    if (!_isSleep)
+                //    {
+                //        Move();
+                //        Jump();
+                //        if (_isGameStart)
+                //        {
+                //            MakuraThrow();
+                //        }
+                //    }
+                //    Sleep_WakeUp();
+                //}
             }
         }
         private void Init()

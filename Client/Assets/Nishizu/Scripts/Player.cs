@@ -22,7 +22,7 @@ public abstract class PlayerBase
     // 移動速度
     //protected Vector3 _force = Vector3.zero;
     // アナログレバー入力の値
-    protected Vector3 _inputValue = Vector3.zero;
+    protected Vector2 _inputMovement;
     // ボタン入力をマスクにしたもの
     protected PacketData.eInputMask _inputMask = 0;
     // 状態を表すマスク
@@ -32,15 +32,13 @@ public abstract class PlayerBase
 
     public byte Id { get { return _id; } set { _id = value; } }
     public GameObject Obj { get { return _obj; } set { _obj = value; } }
-    public Vector3 Force { get { return _playerController.Force; } }
-    public Vector3 InputValue { get { return _inputValue; } }
+    public Vector2 Movement { get { return _playerController.Movement; } }
+    public Vector3 InputMovement { get { return _inputMovement; } }
     public PacketData.eInputMask InputMask { get { return _inputMask; } }
-
-    public bool IsFire { get { return (_inputMask & PacketData.eInputMask.Throw) != 0; } }
     public bool IsJump { get { return (_inputMask & PacketData.eInputMask.Jump) != 0; } }
-    // public bool IsChangeCharacter { get { return (_inputMask & PacketData.eInputMask.ChangeCharacter) != 0; } }
+    public bool IsThrow { get { return (_inputMask & PacketData.eInputMask.Throw) != 0; } }
+    public bool IsPickUp { get { return (_inputMask & PacketData.eInputMask.PickUp) != 0; } }
     public bool IsGround { get { _isStateUsed = true; return (_stateMask & PacketData.eStateMask.Ground) != 0; } }
-    public bool IsReset { get { _isStateUsed = true; return (_stateMask & PacketData.eStateMask.Reset) != 0; } }
 
     public PlayerBase(GameObject prefab, Transform parent)
     {
@@ -62,14 +60,15 @@ public abstract class PlayerBase
     public virtual void Update(PlayerInput input)
     {
         // アナログレバーの値
-        _inputValue = input.InputValue;
+        _inputMovement = input.InputMovement;
 
         // PlayerInputから入力のマスクを作成
         _inputMask = 0;
-        if (input.IsFire) { _inputMask |= PacketData.eInputMask.Throw; }
-        if (input.IsJump) { _inputMask |= PacketData.eInputMask.Jump; }
-        // if (input.IsChangeCharacter) { _inputMask |= (PacketData.eInputMask.ChangeCharacter); }
 
+        // if (input.IsMenu) { _inputMask |= PacketData.eInputMask.Menu; }
+        if (input.IsPickUp) { _inputMask |= PacketData.eInputMask.PickUp; }
+        if (input.IsThrow) { _inputMask |= PacketData.eInputMask.Throw; }
+        if (input.IsJump) { _inputMask |= PacketData.eInputMask.Jump; }
         // 使い終わったPlayerInputの状態は初期化
         input.Reset();
 
@@ -112,40 +111,12 @@ public class Player : PlayerBase
             _obj.transform.rotation = Quaternion.Slerp(_lastDir, Quaternion.LookRotation(d), Mathf.Clamp(0.0f, 1.0f, d.magnitude));
         }
 
-        bool isReset = false;
-
-        // // プレイヤーモデルの切り替え
-        // if (IsChangeCharacter)
-        // {
-        //     // 表示モデルを切り替える
-        //     _playerController.Kind = _playerController.Kind == Player.eKind.police ? Player.eKind.zombie : Player.eKind.police;
-        //     // 衝突判定用のレイヤーを変更する
-        //     _obj.layer = LayerMask.NameToLayer("Player1") + (int)_playerController.Kind;
-
-        //     isReset = true;
-        // }
-
-        // 落下から復帰させる
-        if (_obj.transform.position.y < -8.0f)
-        {
-            isReset = true;
-        }
-
-        if (isReset)
-        {
-            // プレイヤーのリスタート処理
-            _playerController.Restart();
-
-            // 状態マスクにResetを足しておく
-            _stateMask |= PacketData.eStateMask.Reset;
-        }
-
         // 位置と姿勢を保存
         _lastPos = _obj.transform.position;
         _lastDir = _obj.transform.rotation;
 
         // フォースを加える
-        rigidbody.AddForce(Force);
+        rigidbody.AddForce(Movement);
     }
 }
 
@@ -197,9 +168,4 @@ public class NetPlayer : PlayerBase
 
         return offset;
     }
-
-    //public override void Update(PlayerInput input)
-    //{
-    //    base.Update(input);
-    //}
 }

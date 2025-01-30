@@ -75,7 +75,7 @@ namespace PlayerCS
         private PlayerStatus _playerStatus;//プレイヤーのスクリプト
         private List<ShowMakuraController> _showMakuraControllers = new List<ShowMakuraController>();
         private Transform _huton;
-        private Vector3 _movement;
+        private Vector2 _movement;
         private Vector3 _nomalColliderCenter;
         private Vector3 _sleepColliderCenter;
         private GameObject _spGageInstance;
@@ -98,14 +98,14 @@ namespace PlayerCS
         // プレイヤーモデルの種類
         private Player.eKind _kind = Player.eKind.take_Idol;
         // プレイヤーを動かすためにRigidbodyに加える力
-        private Vector3 _force = Vector3.zero;
+        private float _jumpforce = 0.0f;
         // Modelオブジェクト
         private GameObject model = null;
         // Modelオブジェクトの子（TT_demo_policeとTT_demo_zombieノード）
         private List<GameObject> children = new List<GameObject>();
         public Player.eKind Kind { get { return _kind; } set { _kind = value; } }
         public float Speed { set { _speed = value; } }
-        public Vector3 Force { get { return _force; } set { _force = value; } }
+        public Vector2 Movement { get { return _movement; } set { _movement = value; } }
 
         public enum ThrowType
         {
@@ -160,109 +160,117 @@ namespace PlayerCS
                 obj.SetActive(obj.name.Contains(_kind.ToString()));
 
                 // 有効化されたノードにアニメーション速度を反映する
+                Animator anim = obj.GetComponent<Animator>();
+
                 if (obj.activeSelf)
                 {
-                    Animator anim = obj.GetComponent<Animator>();
                     if (anim)
                     {
                         // 0.25乗しているのは単なる調整のため
-                        float animSpeed = Mathf.Pow(_speed, 0.25f);
+                        // float animSpeed = Mathf.Pow(_speed, 0.25f);
                         // anim.SetFloat("Speed", animSpeed);
-                    }
-                }
-            }
+                        anim.SetFloat("Speed", _speed / 3);
+                        anim.SetBool("Walk", true);
 
-
-
-
-
-
-            if (_playerTagUIInstance != null)
-            {
-                _playerTagUIInstance.transform.position = _playerTransform.position + new Vector3(-1.375f, 1.5f, -0.3f);
-            }
-            if (!_isGameEnd)
-            {
-                IsCheckPlayer();
-                MakuraDisplayColorChange();
-                // if (IsGround())
-                // {
-                //     _animator.SetBool("OnGround", true);
-                // }
-                // else
-                // {
-                //     _animator.SetBool("OnGround", false);
-                // }
-                // if (_isSleep)
-                // {
-                //     Vector3 offset = _huton.position - transform.position;
-                //     transform.position = new Vector3(transform.position.x, transform.position.y + offset.y, transform.position.z);
-                //     _animator.SetBool("Sleep", true);
-                // }
-                // else
-                // {
-                //     _animator.SetBool("Sleep", false);
-                // }
-
-                if (_currentMakuras.Count > 0 && !_isSleep)
-                {
-                    RotateShowMakura();
-                }
-                if (_currentMakuras.Count == 0 || _isSleep)
-                {
-                    _currentMakuraDisplays[0].SetActive(false);
-                    _currentMakuraDisplays[0].transform.GetChild(0).gameObject.SetActive(true);
-                    _currentMakuraDisplays[1].SetActive(false);
-                }
-                else if (_currentMakuras.Count == 1)
-                {
-                    _currentMakuraDisplays[0].SetActive(true);
-                    _currentMakuraDisplays[0].transform.GetChild(0).gameObject.SetActive(true);
-                    _currentMakuraDisplays[1].SetActive(false);
-                }
-                else if (_currentMakuras.Count == 2)
-                {
-                    _currentMakuraDisplays[0].SetActive(true);
-                    _currentMakuraDisplays[0].transform.GetChild(0).gameObject.SetActive(true);
-                    _currentMakuraDisplays[1].SetActive(true);
-                    _currentMakuraDisplays[1].transform.GetChild(0).gameObject.SetActive(false);
-                }
-                if (IsHuton() || _currentMakuras.Count > 0 && _isThrowKeyPushed && _currentMakuras[0].GetComponent<MakuraController>().CurrentColorType == ColorChanger.ColorType.Nomal)
-                {
-                    if (_isSpeedUp)
-                    {
-                        _speed = 4.0f;
-                    }
-                    else
-                    {
-                        _speed = 2.0f;
                     }
                 }
                 else
                 {
-                    if (_isSpeedUp)
-                    {
-                        _speed = 6.0f;
-                    }
-                    else
-                    {
-                        _speed = 4.0f;
-                    }
-                }
-                if (!_isHitStop && !_isVibrating && !_isTeacherMakuraHit)
-                {
-                    if (!_isSleep)
-                    {
-                        Move();
-                        Jump();
-                        if (_isGameStart)
-                        {
-                            MakuraThrow();
-                        }
-                    }
-                    Sleep_WakeUp();
+                    // anim.SetBool("Walk", false);
                 }
             }
+
+
+
+
+
+
+            // if (_playerTagUIInstance != null)
+            // {
+            //     _playerTagUIInstance.transform.position = _playerTransform.position + new Vector3(-1.375f, 1.5f, -0.3f);
+            // }
+            // if (!_isGameEnd)
+            // {
+            //     IsCheckPlayer();
+            //     MakuraDisplayColorChange();
+            // if (IsGround())
+            // {
+            //     _animator.SetBool("OnGround", true);
+            // }
+            // else
+            // {
+            //     _animator.SetBool("OnGround", false);
+            // }
+            // if (_isSleep)
+            // {
+            //     Vector3 offset = _huton.position - transform.position;
+            //     transform.position = new Vector3(transform.position.x, transform.position.y + offset.y, transform.position.z);
+            //     _animator.SetBool("Sleep", true);
+            // }
+            // else
+            // {
+            //     _animator.SetBool("Sleep", false);
+            // }
+
+            //     if (_currentMakuras.Count > 0 && !_isSleep)
+            //     {
+            //         RotateShowMakura();
+            //     }
+            //     if (_currentMakuras.Count == 0 || _isSleep)
+            //     {
+            //         _currentMakuraDisplays[0].SetActive(false);
+            //         _currentMakuraDisplays[0].transform.GetChild(0).gameObject.SetActive(true);
+            //         _currentMakuraDisplays[1].SetActive(false);
+            //     }
+            //     else if (_currentMakuras.Count == 1)
+            //     {
+            //         _currentMakuraDisplays[0].SetActive(true);
+            //         _currentMakuraDisplays[0].transform.GetChild(0).gameObject.SetActive(true);
+            //         _currentMakuraDisplays[1].SetActive(false);
+            //     }
+            //     else if (_currentMakuras.Count == 2)
+            //     {
+            //         _currentMakuraDisplays[0].SetActive(true);
+            //         _currentMakuraDisplays[0].transform.GetChild(0).gameObject.SetActive(true);
+            //         _currentMakuraDisplays[1].SetActive(true);
+            //         _currentMakuraDisplays[1].transform.GetChild(0).gameObject.SetActive(false);
+            //     }
+            //     if (IsHuton() || _currentMakuras.Count > 0 && _isThrowKeyPushed && _currentMakuras[0].GetComponent<MakuraController>().CurrentColorType == ColorChanger.ColorType.Nomal)
+            //     {
+            //         if (_isSpeedUp)
+            //         {
+            //             _speed = 4.0f;
+            //         }
+            //         else
+            //         {
+            //             _speed = 2.0f;
+            //         }
+            //     }
+            //     else
+            //     {
+            //         if (_isSpeedUp)
+            //         {
+            //             _speed = 6.0f;
+            //         }
+            //         else
+            //         {
+            //             _speed = 4.0f;
+            //         }
+            //     }
+            //     if (!_isHitStop && !_isVibrating && !_isTeacherMakuraHit)
+            //     {
+            //         if (!_isSleep)
+            //         {
+            //             Move();
+            //             Jump();
+            //             if (_isGameStart)
+            //             {
+            //                 MakuraThrow();
+            //             }
+            //         }
+            //         Sleep_WakeUp();
+            //     }
+            // }
         }
         private void Init()
         {
@@ -359,34 +367,6 @@ namespace PlayerCS
             // Rigidbodyを有効化
             GetComponent<Rigidbody>().isKinematic = false;
         }
-
-        // 位置と向きをリセットする
-        public void Restart()
-        {
-            // ランダムに決定する
-            float x = UnityEngine.Random.value * 10.0f - 5.0f;
-            float y = 4;
-            float z = UnityEngine.Random.value * 10.0f + 10.0f;
-
-            // 表示モデルの種類によってz座標の符号を決める（向きも同様）
-            if (_kind == 0)
-            {
-                z = -z;
-            }
-
-            transform.position = new Vector3(x, y, z);
-            transform.rotation = Quaternion.Euler(0.0f, _kind == 0 ? 0.0f : 180.0f, 0.0f);
-
-            // アニメーション速度を初期化
-            _speed = 0.0f;
-
-            // フォースを初期化
-            _force = Vector3.zero;
-
-            // Rigidbodyの移動速度と回転速度を初期化
-            GetComponent<Rigidbody>().velocity = Vector3.zero;
-            GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-        }
         public void UpdateForce(PlayerBase player)
         {
             float baseForce = 600.0f;
@@ -396,14 +376,14 @@ namespace PlayerCS
             Vector3 vForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;
             Vector3 vRight = Camera.main.transform.right;
 
-            Vector3 inputValue = player.InputValue;
-            _force = baseForce * Time.deltaTime * (vForward * inputValue.y + vRight * inputValue.x);
-
+            // _movement = new Vector3(player.InputMovement.x, 0, player.InputMovement.y);
+            _movement = player.InputMovement;
+            // _force = baseForce * Time.deltaTime * (vForward * inputValue.y + vRight * inputValue.x);
             // ジャンプ
-            if (player.IsJump && IsGround())
-            {
-                _force.y += jumpForce;
-            }
+            // if (player.IsJump && IsGround())
+            // {
+            //     _force.y += jumpForce;
+            // }
         }
         private void OnSpecialAttack(InputValue value)
         {
@@ -508,47 +488,47 @@ namespace PlayerCS
             _rb.AddForce(gravityForce, ForceMode.Acceleration);
         }
 
-        private void OnMove(InputValue value)
-        {
-            Vector2 movementInput = value.Get<Vector2>();
+        // private void OnMove(InputValue value)
+        // {
+        //     Vector2 movementInput = value.Get<Vector2>();
 
-            _movement = new Vector3(movementInput.x, 0, movementInput.y);
-        }
-        private void Move()
-        {
-            if (!_rb.isKinematic)
-            {
-                _rb.velocity = new Vector3(_movement.x * _speed, _rb.velocity.y, _movement.z * _speed);
+        //     _movement = new Vector3(movementInput.x, 0, movementInput.y);
+        // }
+        // private void Move()
+        // {
+        //     if (!_rb.isKinematic)
+        //     {
+        //         _rb.velocity = new Vector3(_movement.x * _speed, _rb.velocity.y, _movement.z * _speed);
 
-                if (_movement.magnitude > 0.1f)
-                {
-                    if (_isSpeedUp)
-                    {
-                        _animator.SetBool("Run", true);
-                        _animator.SetBool("Walk", false);
-                    }
-                    else
-                    {
-                        _animator.SetBool("Walk", true);
-                        _animator.SetBool("Run", false);
-                    }
-                    transform.rotation = Quaternion.LookRotation(_movement);
-                    _lastDirection = transform.rotation;
-                }
-                else
-                {
-                    // if (_isSpeedUp)
-                    // {
-                    //     _animator.SetBool("Run", false);
-                    // }
-                    // else
-                    // {
-                    //     _animator.SetBool("Walk", false);
-                    // }
-                    transform.rotation = _lastDirection;
-                }
-            }
-        }
+        //         if (_movement.magnitude > 0.1f)
+        //         {
+        //             if (_isSpeedUp)
+        //             {
+        //                 _animator.SetBool("Run", true);
+        //                 _animator.SetBool("Walk", false);
+        //             }
+        //             else
+        //             {
+        //                 _animator.SetBool("Walk", true);
+        //                 _animator.SetBool("Run", false);
+        //             }
+        //             transform.rotation = Quaternion.LookRotation(_movement);
+        //             _lastDirection = transform.rotation;
+        //         }
+        //         else
+        //         {
+        //             if (_isSpeedUp)
+        //             {
+        //                 _animator.SetBool("Run", false);
+        //             }
+        //             else
+        //             {
+        //                 _animator.SetBool("Walk", false);
+        //             }
+        //             transform.rotation = _lastDirection;
+        //         }
+        //     }
+        // }
 
         /// <summary>
         /// 足元がGroundかどうか

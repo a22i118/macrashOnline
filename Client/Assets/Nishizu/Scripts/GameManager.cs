@@ -62,6 +62,8 @@ public class GameManager : MonoBehaviour
     private List<NetworkInterfaceData> _networkInterfaces;
 
     public GameObject _playerPrefab;
+    public GameObject _bulletPrefab;
+
     private List<PlayerBase> _players = new List<PlayerBase>();
 
     private PlayerInput _playerInput;
@@ -233,7 +235,7 @@ public class GameManager : MonoBehaviour
                 // プレイヤー数
                 int playerNum = _udpReceiver.Buffer[0];
                 // 弾丸数
-                int bulletNum = _udpReceiver.Buffer[1];
+                // int bulletNum = _udpReceiver.Buffer[1];
 
                 int offset = 1;
 
@@ -339,7 +341,7 @@ public class GameManager : MonoBehaviour
         // }
 
         // タイマー、入力、フォースをパケットに詰む
-        _paket.Push(_globalTimer, player.InputMask, player.Force);
+        _paket.Push(_globalTimer, player.InputMask, player.Movement);
 
         // IDが振られていたらサーバーにデータを送信
         if (_userId != Byte.MaxValue)
