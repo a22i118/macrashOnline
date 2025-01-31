@@ -62,8 +62,10 @@ public class GameManager : MonoBehaviour
     private List<NetworkInterfaceData> _networkInterfaces;
 
     public GameObject _playerPrefab;
+    public GameObject _makuraPrefab;
 
     private List<PlayerBase> _players = new List<PlayerBase>();
+    private List<Makura> _makuras = new List<Makura>();
 
     private PlayerInput _playerInput;
     private Player _offlinePlayer;
@@ -233,10 +235,10 @@ public class GameManager : MonoBehaviour
             {
                 // プレイヤー数
                 int playerNum = _udpReceiver.Buffer[0];
-                // 弾丸数
-                // int bulletNum = _udpReceiver.Buffer[1];
+                // マクラ数
+                int makuraNum = _udpReceiver.Buffer[1];
 
-                int offset = 1;
+                int offset = 2;
 
                 // プレイヤーが足りない場合は補充する
                 for (int i = _players.Count; i < playerNum; i++)
@@ -257,24 +259,24 @@ public class GameManager : MonoBehaviour
                     _players.RemoveRange(playerNum, _players.Count - playerNum);
                 }
 
-                // // 弾丸が足りない場合は補充する
-                // for (int i = _bullets.Count; i < bulletNum; i++)
-                //     _bullets.Add(new Bullet(_bulletPrefab, this.transform, true));
+                // マクラが足りない場合は補充する
+                for (int i = _makuras.Count; i < makuraNum; i++)
+                    _makuras.Add(new Makura(_makuraPrefab, this.transform, true));
 
-                // // 弾丸情報を読み込む
-                // for (int i = 0; i < bulletNum; i++)
-                //     offset = _bullets[i].ReadByte(_udpReceiver.Buffer, offset);
+                // マクラ情報を読み込む
+                for (int i = 0; i < makuraNum; i++)
+                    offset = _makuras[i].ReadByte(_udpReceiver.Buffer, offset);
 
-                // // 弾丸リストが多いときは削除
-                // if (bulletNum < _bullets.Count)
-                // {
-                //     for (int i = bulletNum; i < _bullets.Count; i++)
-                //     {
-                //         GameObject.Destroy(_bullets[i].Obj);
-                //         _bullets[i].Obj = null;
-                //     }
-                //     _bullets.RemoveRange(bulletNum, _bullets.Count - bulletNum);
-                // }
+                // マクラリストが多いときは削除
+                if (makuraNum < _makuras.Count)
+                {
+                    for (int i = makuraNum; i < _makuras.Count; i++)
+                    {
+                        GameObject.Destroy(_makuras[i].Obj);
+                        _makuras[i].Obj = null;
+                    }
+                    _makuras.RemoveRange(makuraNum, _makuras.Count - makuraNum);
+                }
 
                 // 受信バッファを解放
                 _udpReceiver.Buffer = null;
@@ -341,6 +343,10 @@ public class GameManager : MonoBehaviour
 
         // タイマー、入力、フォースをパケットに詰む
         _paket.Push(_globalTimer, player.InputMask, player.Movement);
+        if ((player.InputMask & PacketData.eInputMask.PickUp) != 0)
+        {
+            Debug.Log("拾い");
+        }
 
         // IDが振られていたらサーバーにデータを送信
         if (_userId != Byte.MaxValue)

@@ -9,7 +9,7 @@ using PlayerCS;
 public class Server : MonoBehaviour
 {
     public GameObject _playerPrefab;
-    // public GameObject _bulletPrefab;
+    public GameObject _makuraPrefab;
 
     // UDP通信のためのクラス
     private UdpClient _udpClient = null;
@@ -21,8 +21,8 @@ public class Server : MonoBehaviour
     private List<byte> _freeIds = new List<byte>(Byte.MaxValue - 1);
     // IDをKeyにしたPlayerのDictionary
     private Dictionary<byte, Player> _players = new Dictionary<byte, Player>();
-    // 弾丸のリスト
-    // private List<GameObject> _bullets = new List<GameObject>();
+    // マクラのリスト
+    private List<GameObject> _makuras = new List<GameObject>();
 
     void OnDestroy()
     {
@@ -136,16 +136,16 @@ public class Server : MonoBehaviour
 
             // プレイヤー数
             list.Add((byte)_players.Count);
-            // 弾丸数
-            // list.Add((byte)_bullets.Count);
+            // マクラ数
+            list.Add((byte)_makuras.Count);
 
             // プレイヤー情報をリストに詰む
             foreach (KeyValuePair<byte, Player> player in _players)
                 list.AddRange(player.Value.GetBytes(player.Key));
 
-            // 弾丸情報をリストに詰む
-            // foreach (GameObject bullet in _bullets)
-            //     list.AddRange(bullet.GetComponent<BulletController>().GetBytes());
+            // マクラ情報をリストに詰む
+            foreach (GameObject makura in _makuras)
+                list.AddRange(makura.GetComponent<MakuraController>().GetBytes());
 
             // 全プレイヤーに送信
             for (byte i = 0; i < _players.Count; i++)

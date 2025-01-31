@@ -11,6 +11,8 @@ using UnityEngine.Windows;
 using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
 using UnityEditor.PackageManager;
 using PlayerCS;
+
+
 public class Player
 {
     public enum eKind
@@ -19,10 +21,16 @@ public class Player
         okada_Idol,
     }
     private bool _isJumping = false;
+    private bool _isThrowChargeTime = false;//ため攻撃中か
+    private bool _isThrowCoolTime = false;
     private float _jumpHoldTime = 0.0f;
+    private float _throwKeyHoldTime = 0.0f;//長押ししている時間
+
     private const float c_minJumpForce = 6.5f;
     private const float c_maxJumpForce = 9.0f;
     private const float c_maxJumpHoldTime = 0.2f;
+    private const float c_pickUpDistance = 1.0f;
+    private const float c_throwKeyLongPressTime = 0.5f;//ため攻撃にかかる時間
 
     // タイムアウトまでのフレーム数
     private const int c_timeout = 600;
@@ -33,6 +41,8 @@ public class Player
     private byte _execTimer = 0;
     private readonly object _lockObject = new object();
     private List<PacketData> _packets = new List<PacketData>();
+    private List<GameObject> _currentMakuras = new List<GameObject>();
+
     private IPEndPoint _endPoint;
     // プレイヤーGameObject
     private GameObject _obj = null;
@@ -51,8 +61,10 @@ public class Player
     public IPEndPoint EndPoint { get { return _endPoint; } }
     public GameObject Obj { get { return _obj; } set { _obj = value; } }
 
-    public bool IsFire { get { return (_inputMask & PacketData.eInputMask.Throw) != 0; } }
+    public bool IsThrow { get { return (_inputMask & PacketData.eInputMask.Throw) != 0; } }
     public bool IsJump { get { return (_inputMask & PacketData.eInputMask.Jump) != 0; } }
+    public bool IsPickUp { get { return (_inputMask & PacketData.eInputMask.PickUp) != 0; } }
+
     public bool IsGround { get { return _obj.GetComponent<PlayerController>().IsGround(); } }
 
     public PacketData.eStateMask SendState
@@ -71,7 +83,6 @@ public class Player
 
     public void Update(GameObject prefab, Transform parent)
     {
-        Vector3 force = new Vector3();
         Vector3 velocity = new Vector3();
         PacketData.eInputMask inputMask = _lastInputMask;
 
@@ -106,7 +117,10 @@ public class Player
         }
 
         _inputMask = inputMask;
-
+        if ((_inputMask & PacketData.eInputMask.Throw) != 0)
+        {
+            Debug.Log("投げ");
+        }
         _stateMask = 0;
 
         if (_obj == null)
@@ -118,6 +132,79 @@ public class Player
 
         Jump();
         Move(velocity);
+        if (IsCheckMakura() && IsPickUp)
+        {
+            PickUpMakura();
+            Debug.Log("拾う");
+        }
+        {
+            // if (!_isThrowCoolTime)
+            {
+                if (_currentMakuras.Count > 0)
+                {
+                    if (IsThrow)
+                    {
+                        if (!_isThrowChargeTime)
+                        {
+                            _throwKeyHoldTime = Time.time;
+                            _isThrowChargeTime = true;
+                        }
+                    //}
+                    //else if (_isThrowChargeTime)
+                    //{
+                        float holdTime = Time.time - _throwKeyHoldTime;
+
+                        //if (holdTime < c_throwKeyLongPressTime)
+                        {
+                            if (_currentMakuras[0] != null)
+                            {
+                                Rigidbody rb = _currentMakuras[0].GetComponent<Rigidbody>();
+                                MakuraController _makuraController = _currentMakuras[0].GetComponent<MakuraController>();
+                                rb.isKinematic = true;
+                                rb.isKinematic = false;
+
+                                Vector3 throwDirection = _obj.transform.forward;
+
+                                float forwardForce = 0.0f;
+                                float upwardForce = 0.0f;
+                                float throwDistance = 0.0f;
+                                float throwHeight = 0.0f;
+                                //if (_makuraController.CurrentColorType == ColorChanger.ColorType.Nomal)
+                                {
+                                    forwardForce = 800.0f;
+                                    upwardForce = 200.0f;
+                                    throwDistance = 1.3f;
+                                    throwHeight = 1.0f;
+                                    Vector3 throwPosition = _obj.transform.position + throwDirection * throwDistance + Vector3.up * throwHeight;
+
+
+                                    _currentMakuras[0].transform.position = throwPosition;
+                                    _currentMakuras[0].SetActive(true);
+                                    _makuraController.IsThrow = true;
+                                    _makuraController.Thrower = _obj.gameObject;
+
+                                    rb.AddForce(throwDirection * forwardForce + Vector3.up * upwardForce);
+                                    rb.maxAngularVelocity = 100;
+                                    rb.AddTorque(Vector3.up * 120.0f);
+                                    Debug.Log("ここ");
+                                    _currentMakuras.RemoveAt(0);
+                                }
+                            }
+                        }
+
+
+                        _isThrowChargeTime = false;
+                    }
+                }
+                else
+                {
+                    if (IsThrow)
+                    {
+                        // StartCoroutine(ThrowCoolTimeCorountine());
+                    }
+                }
+            }
+        }
 
         _lastInputMask = _inputMask;
     }
@@ -221,5 +308,43 @@ public class Player
         _lastPos = _obj.transform.position;
         _lastDir = _obj.transform.rotation;
         _obj.GetComponent<Rigidbody>().velocity = new Vector3(velocity.x * 5, _obj.GetComponent<Rigidbody>().velocity.y, velocity.z * 5);
+    }
+    private bool IsCheckMakura()
+    {
+        Vector3 playerPosition = _obj.transform.position;
+        Collider[] hitColliders = Physics.OverlapSphere(playerPosition, c_pickUpDistance);
+        foreach (var makura in hitColliders)
+        {
+            if (makura.CompareTag("Makura"))
+            {
+                // Debug.Log("近くに枕があるぜ！");
+                return true;
+            }
+        }
+        return false;
+    }
+    private void PickUpMakura()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(_obj.transform.position, c_pickUpDistance);
+        foreach (var collider in hitColliders)
+        {
+            if (collider.CompareTag("Makura") && !collider.GetComponent<MakuraController>().IsThrow)
+            {
+                GameObject currentMakura;
+
+                currentMakura = collider.gameObject;
+                currentMakura.transform.SetParent(null);
+                currentMakura.SetActive(false);
+
+                _currentMakuras.Add(currentMakura);
+                break;
+            }
+        }
+    }
+    private IEnumerator ThrowCoolTimeCorountine()
+    {
+        _isThrowCoolTime = true;
+        yield return new WaitForSeconds(0.5f);
+        _isThrowCoolTime = false;
     }
 }

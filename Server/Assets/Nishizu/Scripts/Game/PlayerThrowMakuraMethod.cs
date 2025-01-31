@@ -6,7 +6,7 @@ namespace PlayerCS
 {
     public partial class PlayerController : MonoBehaviour
     {
-        private void ThrowMakura(ThrowType throwType)
+        public void ThrowMakura(ThrowType throwType)
         {
             if (_currentMakuras[0] != null)
             {

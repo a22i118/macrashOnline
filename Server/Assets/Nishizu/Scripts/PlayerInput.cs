@@ -23,11 +23,13 @@ public class PlayerInput : MonoBehaviour
 
     private void OnThrow(InputAction.CallbackContext context)
     {
-        if (context.started)
+        float triggerValue = context.action.ReadValue<float>();
+
+        if (triggerValue > 0.0f)
         {
             _isThrow = true;
         }
-        else if (context.canceled)
+        else if (triggerValue <= 0.0f)
         {
             _isThrow = false;
         }
@@ -45,13 +47,15 @@ public class PlayerInput : MonoBehaviour
     }
     private void OnPickUp_Catch_WakeUp(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        float triggerValue = context.action.ReadValue<float>();
+
+        if (triggerValue > 0.0f)
         {
             _isPickUp = true;
         }
-        else if (context.canceled)
+        else if (triggerValue <= 0.0f)
         {
-            _isPickUp = true;
+            _isPickUp = false;
         }
     }
 
@@ -63,17 +67,18 @@ public class PlayerInput : MonoBehaviour
         _inputActions.Player.Move.performed += OnMove;
         _inputActions.Player.Move.canceled += OnMove;
 
-        _inputActions.Player.Throw.performed += OnThrow;
+        _inputActions.Player.Throw.started += OnThrow;
         _inputActions.Player.Throw.canceled += OnThrow;
 
         _inputActions.Player.Jump.started += OnJump;
         _inputActions.Player.Jump.canceled += OnJump;
 
-        _inputActions.Player.PickUp_Catch_WakeUp.performed += OnPickUp_Catch_WakeUp;
+        _inputActions.Player.PickUp_Catch_WakeUp.started += OnPickUp_Catch_WakeUp;
         _inputActions.Player.PickUp_Catch_WakeUp.canceled += OnPickUp_Catch_WakeUp;
 
         _inputActions.Enable();
     }
+
 
     private void OnDestroy()
     {

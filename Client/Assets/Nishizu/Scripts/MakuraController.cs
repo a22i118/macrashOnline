@@ -45,52 +45,68 @@ public class MakuraController : ColorChanger
         First,
         Second
     }
+    public void Sleep()
+    {
+        // Colliderを無効化
+        GetComponent<SphereCollider>().enabled = false;
+        // Rigidbodyを無効化（位置を姿勢指定のみで動かす）
+        GetComponent<Rigidbody>().isKinematic = true;
+    }
+
+    // WakeUp（ローカルで衝突判定やシミュレーションを行う状態）
+    public void WakeUp()
+    {
+        // Colliderを有効化
+        GetComponent<SphereCollider>().enabled = true;
+        // Rigidbodyを有効化
+        GetComponent<Rigidbody>().isKinematic = false;
+    }
     void Start()
     {
-        _rb = GetComponent<Rigidbody>();
+        // _rb = GetComponent<Rigidbody>();
 
-        _trailPos = transform.position;
-        _col = GetComponent<Collider>();
-        _initialRotation = transform.rotation;
-        _scoreManager = FindObjectOfType<ScoreManager>();
-        _groundLayer |= _hutonLayer;
+        // _trailPos = transform.position;
+        // _col = GetComponent<Collider>();
+        // _initialRotation = transform.rotation;
+        // _scoreManager = FindObjectOfType<ScoreManager>();
+        // _groundLayer |= _hutonLayer;
     }
     void Update()
     {
-        // _trailPos = Vector3.Lerp(_trailPos, transform.position, Mathf.Clamp01(Time.deltaTime * _trailRate));
-        _trailPos = Vector3.Lerp(_trailPos, transform.position, Time.deltaTime);
-        Vector3 direction = transform.InverseTransformDirection(_trailPos - transform.position);
-        _blurMaterial.SetVector(PROPERTY_TRAIL_DIR, direction);
-        if (_isGameStart)
-        {
-            ColorChange(_currentColorType);
-        }
-        ScaleChange(_currentScaleType);
-        BlackMakuraPositionUpdate();
-        if (_isThrow)
-        {
-            StartCoroutine(AutoUseGrabity());
-            _throwedTime -= Time.deltaTime;
-        }
-        else
-        {
-            _throwedTime = 3.0f;
-        }
-        if (transform.position.y >= 9.5f)
-        {
-            _rb.useGravity = true;
-        }
-        if (_currentColorType == ColorType.Black && _isThrow)
-        {
-            if (_rb.useGravity && !_isTouching)
-            {
-                _col.isTrigger = false;
-            }
-        }
-        if (_currentColorType != ColorType.Black)
-        {
-            PositionReset();
-        }
+        // // _trailPos = Vector3.Lerp(_trailPos, transform.position, Mathf.Clamp01(Time.deltaTime * _trailRate));
+        // _trailPos = Vector3.Lerp(_trailPos, transform.position, Time.deltaTime);
+        // Vector3 direction = transform.InverseTransformDirection(_trailPos - transform.position);
+        // _blurMaterial.SetVector(PROPERTY_TRAIL_DIR, direction);
+        // if (_isGameStart)
+        // {
+        //     ColorChange(_currentColorType);
+        // }
+        // ScaleChange(_currentScaleType);
+        // BlackMakuraPositionUpdate();
+        // if (_isThrow)
+        // {
+        //     StartCoroutine(AutoUseGrabity());
+        //     _throwedTime -= Time.deltaTime;
+        // }
+        // else
+        // {
+        //     _throwedTime = 3.0f;
+        // }
+        // if (transform.position.y >= 9.5f)
+        // {
+        //     _rb.useGravity = true;
+        // }
+        // if (_currentColorType == ColorType.Black && _isThrow)
+        // {
+        //     if (_rb.useGravity && !_isTouching)
+        //     {
+        //         _col.isTrigger = false;
+        //     }
+        // }
+        // if (_currentColorType != ColorType.Black)
+        // {
+        //     PositionReset();
+        // }
     }
     /// <summary>
     /// スケールを変える
@@ -115,84 +131,84 @@ public class MakuraController : ColorChanger
 
     private void OnCollisionEnter(Collision collision)
     {
-        _isTouching = true;
+        // _isTouching = true;
 
-        if (!_rb.isKinematic)
-        {
-            if (CurrentColorType != ColorType.Red)
-            {
-                if (_rb.velocity != Vector3.zero && collision.gameObject != _thrower)
-                {
-                    _rb.useGravity = true;
-                    _rb.velocity = Vector3.zero;
-                }
-            }
+        // if (!_rb.isKinematic)
+        // {
+        //     if (CurrentColorType != ColorType.Red)
+        //     {
+        //         if (_rb.velocity != Vector3.zero && collision.gameObject != _thrower)
+        //         {
+        //             _rb.useGravity = true;
+        //             _rb.velocity = Vector3.zero;
+        //         }
+        //     }
 
-            if (collision.gameObject.CompareTag("Player") && _isThrow && collision.gameObject != _thrower)
-            {
-                PlayerController playerController = collision.gameObject.GetComponent<PlayerController>();
-                if (playerController == null)
-                {
-                    ThrowMakuraDemo throwMakuraDemo = collision.gameObject.GetComponent<ThrowMakuraDemo>();
-                    if (!throwMakuraDemo.IsHitCoolTime)
-                    {
-                        StartCoroutine(ScaleResetDeray());
-                        _rb.useGravity = true;
-                        _rb.isKinematic = true;
-                        _rb.isKinematic = false;
-                        _rb.velocity = Vector3.zero;
-                        StartCoroutine(HitStopVibration());
-                        StartCoroutine(HitCoolTime());
-                        _scoreManager.UpdateScore(_thrower.name, collision.gameObject.name, false);
-                    }
-                }
-                else if (!playerController.IsHitCoolTime && !_isHitCoolTimeOne)
-                {
-                    _isHitCoolTimeOne = true;
-                    StartCoroutine(HitCoolTimeDelay());
-                    StartCoroutine(ScaleResetDeray());
-                    _rb.useGravity = true;
-                    _rb.isKinematic = true;
-                    _rb.isKinematic = false;
-                    _rb.velocity = Vector3.zero;
-                    StartCoroutine(HitStopVibration());
-                    // StartCoroutine(IgnoreCollisionTime(collision.gameObject.GetComponent<CapsuleCollider>()));
-                    StartCoroutine(HitCoolTime());
-                    _scoreManager.UpdateScore(_thrower.name, collision.gameObject.name, playerController.IsSleep);
-                }
-            }
-            if (collision.gameObject.CompareTag("Makura"))
-            {
-                _isThrow = false;
-                StartCoroutine(ScaleResetDeray());
-                _rb.useGravity = true;
-                _rb.velocity = Vector3.zero;
-                transform.rotation = Quaternion.Euler(_initialRotation.eulerAngles.x, transform.rotation.eulerAngles.y, _initialRotation.eulerAngles.z);
-            }
-        }
-        if (_isCharge)
-        {
-            HitSpawn();
-            _isCharge = false;
-        }
-        if ((_groundLayer & (1 << collision.gameObject.layer)) != 0)
-        {
-            _isThrow = false;
-            _isCounterAttack = false;
-            StartCoroutine(ScaleResetDeray());
-            transform.rotation = Quaternion.Euler(_initialRotation.eulerAngles.x, transform.rotation.eulerAngles.y, _initialRotation.eulerAngles.z);
-            if (!_rb.isKinematic)
-            {
-                _rb.velocity = Vector3.zero;
-            }
-            _rb.isKinematic = true;
-            _currentColorType = GetRandomColor();
-        }
+        //     if (collision.gameObject.CompareTag("Player") && _isThrow && collision.gameObject != _thrower)
+        //     {
+        //         PlayerController playerController = collision.gameObject.GetComponent<PlayerController>();
+        //         if (playerController == null)
+        //         {
+        //             ThrowMakuraDemo throwMakuraDemo = collision.gameObject.GetComponent<ThrowMakuraDemo>();
+        //             if (!throwMakuraDemo.IsHitCoolTime)
+        //             {
+        //                 StartCoroutine(ScaleResetDeray());
+        //                 _rb.useGravity = true;
+        //                 _rb.isKinematic = true;
+        //                 _rb.isKinematic = false;
+        //                 _rb.velocity = Vector3.zero;
+        //                 StartCoroutine(HitStopVibration());
+        //                 StartCoroutine(HitCoolTime());
+        //                 _scoreManager.UpdateScore(_thrower.name, collision.gameObject.name, false);
+        //             }
+        //         }
+        //         else if (!playerController.IsHitCoolTime && !_isHitCoolTimeOne)
+        //         {
+        //             _isHitCoolTimeOne = true;
+        //             StartCoroutine(HitCoolTimeDelay());
+        //             StartCoroutine(ScaleResetDeray());
+        //             _rb.useGravity = true;
+        //             _rb.isKinematic = true;
+        //             _rb.isKinematic = false;
+        //             _rb.velocity = Vector3.zero;
+        //             StartCoroutine(HitStopVibration());
+        //             // StartCoroutine(IgnoreCollisionTime(collision.gameObject.GetComponent<CapsuleCollider>()));
+        //             StartCoroutine(HitCoolTime());
+        //             _scoreManager.UpdateScore(_thrower.name, collision.gameObject.name, playerController.IsSleep);
+        //         }
+        //     }
+        //     if (collision.gameObject.CompareTag("Makura"))
+        //     {
+        //         _isThrow = false;
+        //         StartCoroutine(ScaleResetDeray());
+        //         _rb.useGravity = true;
+        //         _rb.velocity = Vector3.zero;
+        //         transform.rotation = Quaternion.Euler(_initialRotation.eulerAngles.x, transform.rotation.eulerAngles.y, _initialRotation.eulerAngles.z);
+        //     }
+        // }
+        // if (_isCharge)
+        // {
+        //     HitSpawn();
+        //     _isCharge = false;
+        // }
+        // if ((_groundLayer & (1 << collision.gameObject.layer)) != 0)
+        // {
+        //     _isThrow = false;
+        //     _isCounterAttack = false;
+        //     StartCoroutine(ScaleResetDeray());
+        //     transform.rotation = Quaternion.Euler(_initialRotation.eulerAngles.x, transform.rotation.eulerAngles.y, _initialRotation.eulerAngles.z);
+        //     if (!_rb.isKinematic)
+        //     {
+        //         _rb.velocity = Vector3.zero;
+        //     }
+        //     _rb.isKinematic = true;
+        //     _currentColorType = GetRandomColor();
+        // }
 
-        if (_isAlterEgo)
-        {
-            Destroy(gameObject, 0.4f);
-        }
+        // if (_isAlterEgo)
+        // {
+        //     Destroy(gameObject, 0.4f);
+        // }
     }
     /// <summary>
     /// 爆発（の当たり判定）を生成する

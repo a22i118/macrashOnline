@@ -112,10 +112,10 @@ namespace PlayerCS
             Nomal,
             Charge
         }
-        void Awake()
-        {
-            Init();
-        }
+        // void Awake()
+        // {
+        //     Init();
+        // }
         void Start()
         {
             // Modelノードを探す
@@ -484,11 +484,11 @@ namespace PlayerCS
             }
         }
 
-        private void FixedUpdate()
-        {
-            Vector3 gravityForce = new Vector3(0, C_gravity, 0);
-            _rb.AddForce(gravityForce, ForceMode.Acceleration);
-        }
+        // private void FixedUpdate()
+        // {
+        //     Vector3 gravityForce = new Vector3(0, C_gravity, 0);
+        //     _rb.AddForce(gravityForce, ForceMode.Acceleration);
+        // }
 
         // private void OnMove(InputValue value)
         // {

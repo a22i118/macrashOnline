@@ -7718,7 +7718,7 @@ MonoBehaviour:
   _priorityIntafaceName: 
   _selectNetworkInterfaceDropdown: {fileID: 680022510}
   _playerPrefab: {fileID: 4436556737434492803, guid: 210988348f2c8f944b90b435f53d8175, type: 3}
-  _bulletPrefab: {fileID: 0}
+  _makuraPrefab: {fileID: 0}
   host: localhost
 --- !u!4 &1130005880
 Transform:
