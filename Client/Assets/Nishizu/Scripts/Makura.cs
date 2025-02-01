@@ -6,23 +6,16 @@ using UnityEngine;
 public class Makura
 {
     protected byte _id = byte.MaxValue;
-    // MakuraのGameObject
     protected GameObject _obj = null;
     protected MakuraController _makuraController = null;
-    // 状態を表すマスク
     protected PacketData.eStateMask _stateMask = 0;
-    // eStateMaskが参照されたらtrueになるマスク
-    protected bool _isStateUsed = true;
+    protected bool _isStateUsed = true;    // eStateMaskが参照されたらtrueになるマスク
     public byte Id { get { return _id; } set { _id = value; } }
     public GameObject Obj { get { return _obj; } set { _obj = value; } }
     public Makura(GameObject prefab, bool isSleep)
     {
-        // PrefabからGameObjectを作成
         _obj = GameObject.Instantiate(prefab);
-        // コンポーネント
         _makuraController = _obj.GetComponent<MakuraController>();
-
-        // ネットワークプレイのときはSleepする
         if (isSleep) { _makuraController.Sleep(); }
     }
     public int ReadByte(byte[] getByte, int offset)

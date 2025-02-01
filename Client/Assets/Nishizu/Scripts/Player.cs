@@ -9,26 +9,16 @@ using PlayerCS;
 // オフライン用Player、ネットワーク用Playerの基底クラス
 public abstract class PlayerBase
 {
-    // プレイヤーID（サーバーが割り当てる）
-    protected byte _id = byte.MaxValue;
-    // プレイヤーGameObject
+    protected byte _id = byte.MaxValue;    // プレイヤーID（サーバーが割り当てる）
     protected GameObject _obj = null;
-    // プレイヤー操作クラス
     protected PlayerController _playerController = null;
-    // 前フレームの位置
-    protected Vector3 _lastPos = Vector3.zero;
-    // 前フレームの姿勢
-    protected Quaternion _lastDir = Quaternion.identity;
-    // 移動速度
-    //protected Vector3 _force = Vector3.zero;
-    // アナログレバー入力の値
-    protected Vector2 _inputMovement;
-    // ボタン入力をマスクにしたもの
-    protected PacketData.eInputMask _inputMask = 0;
-    // 状態を表すマスク
-    protected PacketData.eStateMask _stateMask = 0;
-    // eStateMaskが参照されたらtrueになるマスク
-    protected bool _isStateUsed = true;
+    protected Vector3 _lastPos = Vector3.zero;    // 前フレームの位置
+    protected Quaternion _lastDir = Quaternion.identity;    // 前フレームの姿勢
+    //protected Vector3 _force = Vector3.zero;    // 移動速度
+    protected Vector2 _inputMovement;    // アナログレバー入力の値
+    protected PacketData.eInputMask _inputMask = 0;    // ボタン入力をマスクにしたもの
+    protected PacketData.eStateMask _stateMask = 0;    // 状態を表すマスク
+    protected bool _isStateUsed = true;    // eStateMaskが参照されたらtrueになるマスク
 
     public byte Id { get { return _id; } set { _id = value; } }
     public GameObject Obj { get { return _obj; } set { _obj = value; } }
@@ -42,11 +32,8 @@ public abstract class PlayerBase
 
     public PlayerBase(GameObject prefab, Transform parent)
     {
-        // PrefabからGameObjectを作成
         _obj = GameObject.Instantiate(prefab);
-        // parentの子にする
         _obj.transform.parent = parent.transform;
-        // コンポーネント
         _playerController = _obj.GetComponent<PlayerController>();
     }
 
@@ -97,16 +84,15 @@ public class Player : PlayerBase
 
         _stateMask = 0;
 
-        // 移動速度（y方向は含めない）
         Rigidbody rigidbody = _obj.GetComponent<Rigidbody>();
         _playerController.Speed = Mathf.Abs(Vector3.Dot(new Vector3(1.0f, 0.0f, 1.0f), rigidbody.velocity));
 
         // 角度を更新（移動量で補間する）
-        Vector3 d = _obj.transform.position - _lastPos;
-        d.y = 0.0f;
-        if (d != Vector3.zero)
+        Vector3 dir = _obj.transform.position - _lastPos;
+        dir.y = 0.0f;
+        if (dir != Vector3.zero)
         {
-            _obj.transform.rotation = Quaternion.Slerp(_lastDir, Quaternion.LookRotation(d), Mathf.Clamp(0.0f, 1.0f, d.magnitude));
+            _obj.transform.rotation = Quaternion.Slerp(_lastDir, Quaternion.LookRotation(dir), Mathf.Clamp(0.0f, 1.0f, dir.magnitude));
         }
 
         // 位置と姿勢を保存
@@ -114,7 +100,8 @@ public class Player : PlayerBase
         _lastDir = _obj.transform.rotation;
 
         // フォースを加える
-        rigidbody.AddForce(Movement);
+        Rigidbody rb = _obj.GetComponent<Rigidbody>();
+        rb.velocity = new Vector3(Movement.x * 5, rb.velocity.y, Movement.y * 5);
     }
 }
 

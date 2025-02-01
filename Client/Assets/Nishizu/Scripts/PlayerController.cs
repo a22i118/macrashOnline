@@ -162,41 +162,18 @@ namespace PlayerCS
 
                 // 有効化されたノードにアニメーション速度を反映する
                 Animator anim = obj.GetComponent<Animator>();
-                // Debug.Log("" + _speed);
-
-                // if (obj.activeSelf)
-                // {
-                //     if (anim)
-                //     {
-                //         if (_speed > 0.1f)
-                //         {
-                //             // 0.25乗しているのは単なる調整のため
-                //             anim.SetBool("Walk", true);
-                //             float animSpeed = Mathf.Pow(_speed, 0.5f);
-                //             anim.SetFloat("Speed", animSpeed);
-                //             // anim.SetFloat("Speed", _speed);
-                //         }
-                //         else
-                //         {
-                //             anim.SetBool("Walk", false);
-                //         }
-                //     }
-                // }
-                if (_isMoved)
+                if (obj.activeSelf)
                 {
-                    anim.SetBool("Walk", true);
-                }
-                else
-                {
-                    anim.SetBool("Walk", false);
+                    if (_isMoved)
+                    {
+                        anim.SetBool("Walk", true);
+                    }
+                    else
+                    {
+                        anim.SetBool("Walk", false);
+                    }
                 }
             }
-
-
-
-
-
-
             // if (_playerTagUIInstance != null)
             // {
             //     _playerTagUIInstance.transform.position = _playerTransform.position + new Vector3(-1.375f, 1.5f, -0.3f);
@@ -381,24 +358,9 @@ namespace PlayerCS
         }
         public void UpdateForce(PlayerBase player)
         {
-            float baseForce = 600.0f;
-            float jumpForce = 24.0f * 8.0f;
-
-            // カメラの前方と右方向のベクトル
-            Vector3 vForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;
-            Vector3 vRight = Camera.main.transform.right;
-
-            // _movement = new Vector3(player.InputMovement.x, 0, player.InputMovement.y);
             _movement = player.InputMovement;
 
             _isMoved = (_movement != Vector2.zero) ? true : false;
-
-            // _force = baseForce * Time.deltaTime * (vForward * inputValue.y + vRight * inputValue.x);
-            // ジャンプ
-            // if (player.IsJump && IsGround())
-            // {
-            //     _force.y += jumpForce;
-            // }
         }
         private void OnSpecialAttack(InputValue value)
         {

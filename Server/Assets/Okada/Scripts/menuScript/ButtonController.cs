@@ -32,7 +32,7 @@ public class ButtonController : MonoBehaviour
 
     public void StartLocal()
     {
-        SceneManager.LoadScene("GameScene");
+        // SceneManager.LoadScene("GameScene");
     }
 
     public void StartServer()
@@ -42,7 +42,7 @@ public class ButtonController : MonoBehaviour
 
     public void ExitGame(int i)
     {
-        if(i == 0)
+        if (i == 0)
         {
             Application.Quit(); //ÉQÅ[ÉÄèIóπ
 
@@ -58,4 +58,3 @@ public class ButtonController : MonoBehaviour
     }
 
 }
-

@@ -54,41 +54,25 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private string _ipAddress;
     [SerializeField] private string _macAddress;
-    // 優先するインターフェースを文字列で指定（なければ空白）
     [SerializeField] private string _priorityIntafaceName;
-    // ドロップダウン
     [SerializeField] private TMP_Dropdown _selectNetworkInterfaceDropdown;
-    // 利用可能な機器のリスト
-    private List<NetworkInterfaceData> _networkInterfaces;
-
-    public GameObject _playerPrefab;
-    public GameObject _makuraPrefab;
-
+    private List<NetworkInterfaceData> _networkInterfaces;    // 利用可能な機器のリスト
+    [SerializeField] private GameObject _playerPrefab;
+    [SerializeField] private GameObject _makuraPrefab;
     private List<PlayerBase> _players = new List<PlayerBase>();
     private List<Makura> _makuras = new List<Makura>();
-
     private PlayerInput _playerInput;
     private Player _offlinePlayer;
-    // UDP通信のためのクラス
-    private UdpClient _udpClient;
-    // ServerのIpAddressを指定する（localhostは自分自身）
-    [SerializeField] private string host = "localhost";
-    // 使用するPort(Server)
-    private int _portServer = 53724;
-    // 使用するPort(自分:Client)
-    private int _portClient = 53725;
-    // 送信バッファ
-    UdpBuffer _udpTransmitter = new UdpBuffer();
-    // 受信バッファ
-    UdpBuffer _udpReceiver = new UdpBuffer();
-    // 受信したユーザーID
-    private byte _userIdWork = Byte.MaxValue;
-    // ユーザーID
-    private byte _userId = Byte.MaxValue;
-    // タイマー（サーバー側でパケットロスの判定などに使用する）
-    private byte _globalTimer = 0;
-    // 送信パケット
-    private Packet _paket = new Packet();
+    private UdpClient _udpClient;    // UDP通信のためのクラス
+    [SerializeField] private string host = "localhost";    // ServerのIpAddressを指定する（localhostは自分自身）
+    private int _portServer = 53724;    // 使用するPort(Server)
+    private int _portClient = 53725;    // 使用するPort(自分:Client)
+    UdpBuffer _udpTransmitter = new UdpBuffer();    // 送信バッファ
+    UdpBuffer _udpReceiver = new UdpBuffer();    // 受信バッファ
+    private byte _userIdWork = Byte.MaxValue;    // 受信したユーザーID
+    private byte _userId = Byte.MaxValue;    // ユーザーID
+    private byte _globalTimer = 0;    // タイマー（サーバー側でパケットロスの判定などに使用する）
+    private Packet _paket = new Packet();    // 送信パケット
 
     // Start is called before the first frame update
     private void Awake()
@@ -135,9 +119,6 @@ public class GameManager : MonoBehaviour
         // _ready.SetActive(false);
         // _go.SetActive(false);
         // _finish.SetActive(false);
-
-
-
 
         // 利用可能な機器のリストを取得
         _networkInterfaces = NetworkInterfaceData.GetIpAddress();
@@ -192,7 +173,6 @@ public class GameManager : MonoBehaviour
         //             StartCoroutine(StartDerey());
         //             _isPlayerSet = false;
         //         }
-
         //     }
         //     else
         //     {
@@ -301,10 +281,6 @@ public class GameManager : MonoBehaviour
 
         // タイマー、入力、フォースをパケットに詰む
         _paket.Push(_globalTimer, player.InputMask, player.Movement);
-        // if ((player.InputMask & PacketData.eInputMask.PickUp) != 0)
-        // {
-        //     Debug.Log("拾い");
-        // }
 
         // IDが振られていたらサーバーにデータを送信
         if (_userId != Byte.MaxValue)
@@ -320,66 +296,8 @@ public class GameManager : MonoBehaviour
             _udpClient.Send(buffer.ToArray(), buffer.Count, host, _portServer);
         }
 
-        // {
-        //     // カメラの注視点にプレイヤー位置をコピー
-        //     _cameraTarget.transform.position = player.Obj.transform.position;
-        //     // プレイヤー切り替えやリセットが発生していたら
-        //     if (player.IsChangeCharacter | player.IsReset)
-        //     {
-        //         Quaternion q = player.Obj.transform.rotation;
-        //         Vector3 startPos = player.Obj.transform.position + q * new Vector3(0, 3, -5);
-        //         // カメラを即時プレイヤー後方に切り替え
-        //         _cinemachineVirtualCamera1.ForceCameraPosition(startPos, q);
-        //         // 補間を無効にする
-        //         _cinemachineVirtualCamera1.PreviousStateIsValid = false;
-        //     }
-        //     else
-        //     {
-        //         // 補間を有効にする
-        //         _cinemachineVirtualCamera1.PreviousStateIsValid = true;
-        //     }
-        // }
-
         _globalTimer++;
     }
-    /// <summary>
-    ///ゲームマネージャー初期化
-    /// </summary>
-    private void Init()
-    {
-        // _isGameStart = true;
-        // _event.IsGameStart = true;
-        // _scoreManager.GetComponent<ScoreManager>().IsGameStart = true;
-        // _clock.GetComponent<ClockController>().IsGameStart = true;
-        // foreach (var player in _players)
-        // {
-        //     player.GetComponent<PlayerStatus>().IsGameStart = true;
-        //     player.GetComponent<PlayerController>().IsGameStart = true;
-        // }
-        // foreach (var makura in _makuraControllers)
-        // {
-        //     makura.IsGameStart = true;
-        // }
-        // _playerInputManager.SetActive(false);
-        // StartCoroutine(GameEnd());
-    }
-    /// <summary>
-    /// 接続されているプレイヤーが全員寝ているかどうかの判定
-    /// </summary>
-    /// <param name="players">は接続されているプレイヤー</param>
-    /// <returns>接続されているプレイヤーが全員寝ていればtrueを返す</returns>
-    // private bool SleepCheck(List<GameObject> players)
-    // {
-    //     foreach (var player in players)
-    //     {
-    //         if (!player.GetComponent<PlayerController>().IsSleep)
-    //         {
-    //             return false;
-    //         }
-    //     }
-    //     return true;
-    // }
-
     private void OnReceived(System.IAsyncResult result)
     {
         UdpClient getUdp = (UdpClient)result.AsyncState;
@@ -425,6 +343,45 @@ public class GameManager : MonoBehaviour
             _udpClient = null;
         }
     }
+    /// <summary>
+    ///ゲームマネージャー初期化
+    /// </summary>
+    // private void Init()
+    // {
+    // _isGameStart = true;
+    // _event.IsGameStart = true;
+    // _scoreManager.GetComponent<ScoreManager>().IsGameStart = true;
+    // _clock.GetComponent<ClockController>().IsGameStart = true;
+    // foreach (var player in _players)
+    // {
+    //     player.GetComponent<PlayerStatus>().IsGameStart = true;
+    //     player.GetComponent<PlayerController>().IsGameStart = true;
+    // }
+    // foreach (var makura in _makuraControllers)
+    // {
+    //     makura.IsGameStart = true;
+    // }
+    // _playerInputManager.SetActive(false);
+    // StartCoroutine(GameEnd());
+    // }
+
+    /// <summary>
+    /// 接続されているプレイヤーが全員寝ているかどうかの判定
+    /// </summary>
+    /// <param name="players">は接続されているプレイヤー</param>
+    /// <returns>接続されているプレイヤーが全員寝ていればtrueを返す</returns>
+    // private bool SleepCheck(List<GameObject> players)
+    // {
+    //     foreach (var player in players)
+    //     {
+    //         if (!player.GetComponent<PlayerController>().IsSleep)
+    //         {
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // }
+
     /// <summary>
     /// ハプニングボールの生成位置をランダムで取得
     /// </summary>

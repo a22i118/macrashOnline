@@ -306,7 +306,8 @@ public class Player
 
         _lastPos = _obj.transform.position;
         _lastDir = _obj.transform.rotation;
-        _obj.GetComponent<Rigidbody>().velocity = new Vector3(velocity.x * 5, _obj.GetComponent<Rigidbody>().velocity.y, velocity.z * 5);
+        Rigidbody rb = _obj.GetComponent<Rigidbody>();
+        rb.velocity = new Vector3(velocity.x * 5, rb.velocity.y, velocity.z * 5);
     }
     private bool IsCheckMakura()
     {
