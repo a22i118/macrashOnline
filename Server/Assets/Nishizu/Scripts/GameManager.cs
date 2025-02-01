@@ -54,29 +54,18 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private string _ipAddress;
     [SerializeField] private string _macAddress;
-    // 優先するインターフェースを文字列で指定（なければ空白）
-    [SerializeField] private string _priorityIntafaceName;
-    // ドロップダウン
+    [SerializeField] private string _priorityIntafaceName;    // 優先するインターフェースを文字列で指定（なければ空白）
     [SerializeField] private TMP_Dropdown _selectNetworkInterfaceDropdown;
-    // 利用可能な機器のリスト
-    private List<NetworkInterfaceData> _networkInterfaces;
-
+    private List<NetworkInterfaceData> _networkInterfaces;    // 利用可能な機器のリスト
     // private List<PlayerBase> _players = new List<PlayerBase>();
-
     private PlayerInput _playerInput;
     // private Player _offlinePlayer;
-    // UDP通信のためのクラス
-    private UdpClient _udpClient;
-    // ServerのIpAddressを指定する（localhostは自分自身）
-    [SerializeField] private string host = "localhost";
-    // 使用するPort(Server)
-    private int _portServer = 53724;
-    // 使用するPort(自分:Client)
-    private int _portClient = 53725;
-    // 送信バッファ
-    UdpBuffer _udpTransmitter = new UdpBuffer();
-    // 受信バッファ
-    UdpBuffer _udpReceiver = new UdpBuffer();
+    private UdpClient _udpClient;    // UDP通信のためのクラス
+    [SerializeField] private string host = "localhost";    // ServerのIpAddressを指定する（localhostは自分自身）
+    private int _portServer = 53724;    // 使用するPort(Server)
+    private int _portClient = 53725;    // 使用するPort(自分:Client)
+    UdpBuffer _udpTransmitter = new UdpBuffer();    // 送信バッファ
+    UdpBuffer _udpReceiver = new UdpBuffer();    // 受信バッファ
 
     // Start is called before the first frame update
     private void Awake()
@@ -123,9 +112,6 @@ public class GameManager : MonoBehaviour
         // _ready.SetActive(false);
         // _go.SetActive(false);
         // _finish.SetActive(false);
-
-
-
 
         // 利用可能な機器のリストを取得
         _networkInterfaces = NetworkInterfaceData.GetIpAddress();

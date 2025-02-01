@@ -78,8 +78,6 @@ public class PlayerInput : MonoBehaviour
 
         _inputActions.Enable();
     }
-
-
     private void OnDestroy()
     {
         _inputActions?.Dispose();

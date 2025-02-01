@@ -29,32 +29,22 @@ public class Player
     private const float c_maxJumpHoldTime = 0.2f;
     private const float c_pickUpDistance = 1.0f;
     private const float c_throwKeyLongPressTime = 0.5f;//ため攻撃にかかる時間
-
-    // タイムアウトまでのフレーム数
-    private const int c_timeout = 600;
+    private const int c_timeout = 600;    // タイムアウトまでのフレーム数
     private int _timeout = c_timeout;
-    // 受信済みフレーム
-    private byte _receiveTimer = 0;
-    // 処理済みフレーム
-    private byte _execTimer = 0;
+    private byte _receiveTimer = 0;    // 受信済みフレーム
+    private byte _execTimer = 0;    // 処理済みフレーム
     private readonly object _lockObject = new object();
     private List<PacketData> _packets = new List<PacketData>();
     private List<GameObject> _currentMakuras = new List<GameObject>();
 
     private IPEndPoint _endPoint;
-    // プレイヤーGameObject
-    private GameObject _obj = null;
-    // プレイヤー操作クラス
-    private PlayerController _playerController = null;
-    // 前フレームの位置
-    protected Vector3 _lastPos = Vector3.zero;
-    // 前フレームの姿勢
-    protected Quaternion _lastDir = Quaternion.identity;
-    // ボタン入力をマスクにしたもの
-    private PacketData.eInputMask _inputMask = 0;
+    private GameObject _obj = null;    // プレイヤーGameObject
+    private PlayerController _playerController = null;    // プレイヤー操作クラス
+    protected Vector3 _lastPos = Vector3.zero;    // 前フレームの位置
+    protected Quaternion _lastDir = Quaternion.identity;    // 前フレームの姿勢
+    private PacketData.eInputMask _inputMask = 0;    // ボタン入力をマスクにしたもの
     private PacketData.eInputMask _lastInputMask = 0;
-    // 状態を表すマスク
-    protected PacketData.eStateMask _stateMask = 0;
+    protected PacketData.eStateMask _stateMask = 0;    // 状態を表すマスク
 
     public IPEndPoint EndPoint { get { return _endPoint; } }
     public GameObject Obj { get { return _obj; } set { _obj = value; } }

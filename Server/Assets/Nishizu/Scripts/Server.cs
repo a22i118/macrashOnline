@@ -6,20 +6,13 @@ using System.Net;
 using UnityEngine;
 public class Server : MonoBehaviour
 {
-    public GameObject _playerPrefab;
-    public GameObject _makuraPrefab;
-
-    // UDP通信のためのクラス
-    private UdpClient _udpClient = null;
-    // 使用するPort(Server)
-    private int _portServer = 53724;
-    // ロックオブジェクト（プレイヤーリスト）
-    private readonly object _lockObject = new object();
-    // 空いているIDのリスト
-    private List<byte> _freeIds = new List<byte>(Byte.MaxValue - 1);
-    // IDをKeyにしたPlayerのDictionary
-    private Dictionary<byte, Player> _players = new Dictionary<byte, Player>();
-    // マクラのリスト
+    [SerializeField] private GameObject _playerPrefab;
+    [SerializeField] private GameObject _makuraPrefab;
+    private UdpClient _udpClient = null;    // UDP通信のためのクラス
+    private int _portServer = 53724;    // 使用するPort(Server)
+    private readonly object _lockObject = new object();    // ロックオブジェクト（プレイヤーリスト）
+    private List<byte> _freeIds = new List<byte>(Byte.MaxValue - 1);    // 空いているIDのリスト
+    private Dictionary<byte, Player> _players = new Dictionary<byte, Player>();    // IDをKeyにしたPlayerのDictionary
     private List<GameObject> _makuras = new List<GameObject>();
 
     void OnDestroy()
@@ -50,8 +43,7 @@ public class Server : MonoBehaviour
 
         // 待ち受け開始（受信があったときOnReceivedが呼ばれる）
         _udpClient.BeginReceive(OnReceived, _udpClient);
-
-
+        //テストのためマクラを一つ生成
         _makuras.Add(Instantiate(_makuraPrefab, new Vector3(0, 0, 4), Quaternion.identity));
     }
 

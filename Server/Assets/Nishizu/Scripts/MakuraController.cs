@@ -102,7 +102,7 @@ public class MakuraController : ColorChanger
         get
         {
             PacketData.eStateMask stateMask = 0;
-             if (IsSetActive) { stateMask |= PacketData.eStateMask.SetActive; }
+            if (IsSetActive) { stateMask |= PacketData.eStateMask.SetActive; }
             return stateMask;
         }
     }
@@ -112,7 +112,6 @@ public class MakuraController : ColorChanger
     {
         Vector3 v = transform.position;
         Quaternion q = transform.rotation;
-        float speed = Mathf.Abs(Vector3.Dot(new Vector3(1.0f, 0.0f, 1.0f), GetComponent<Rigidbody>().velocity));
 
         List<byte> list = new List<byte>();
 

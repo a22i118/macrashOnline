@@ -103,8 +103,6 @@ namespace PlayerCS
         public GameObject PlayerTagUIInstance { get => _playerTagUIInstance; set => _playerTagUIInstance = value; }
         public GameObject[] CurrentMakuraDisplays { get => _currentMakuraDisplays; set => _currentMakuraDisplays = value; }
 
-
-
         // プレイヤーモデルの種類
         private Player.eKind _kind = Player.eKind.take_Idol;
         // public bool IsGround { get { return IsGround(); } }
@@ -413,7 +411,7 @@ namespace PlayerCS
         private void FixedUpdate()
         {
             Vector3 gravityForce = new Vector3(0, C_gravity, 0);
-             _rb.AddForce(gravityForce, ForceMode.Acceleration);
+            _rb.AddForce(gravityForce, ForceMode.Acceleration);
         }
 
         private void OnMove(InputValue value)
