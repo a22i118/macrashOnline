@@ -21,6 +21,7 @@ public class Player
         okada_Idol,
     }
     private bool _isJumping = false;
+    private bool _isJumpReset = true;
     private bool _isThrowChargeTime = false;//ため攻撃中か
     private bool _isThrowCoolTime = false;
     private float _jumpHoldTime = 0.0f;
@@ -266,19 +267,17 @@ public class Player
     {
         if (IsJump)
         {
-            if (IsGround)
+            if (_isJumpReset && IsGround)
             {
                 _jumpHoldTime = 0.0f;
                 _isJumping = true;
+                _isJumpReset = false;
             }
         }
         else
         {
-            if (_isJumping)
-            {
-                _isJumping = false;
-            }
-
+            _isJumping = false;
+            _isJumpReset = true;
         }
 
         if (_isJumping)
