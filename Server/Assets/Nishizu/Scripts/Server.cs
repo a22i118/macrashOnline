@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Net;
 using UnityEngine;
-using UnityEditor.PackageManager;
-using PlayerCS;
 public class Server : MonoBehaviour
 {
     public GameObject _playerPrefab;
