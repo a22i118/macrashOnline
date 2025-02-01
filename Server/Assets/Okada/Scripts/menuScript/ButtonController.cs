@@ -35,6 +35,11 @@ public class ButtonController : MonoBehaviour
         SceneManager.LoadScene("GameScene");
     }
 
+    public void StartServer()
+    {
+        SceneManager.LoadScene("GameScene");
+    }
+
     public void ExitGame(int i)
     {
         if(i == 0)

@@ -32,9 +32,13 @@ public class ButtonController : MonoBehaviour
 
     public void StartLocal()
     {
-        SceneManager.LoadScene("GameScene");
+        //SceneManager.LoadScene("GameScene");
     }
 
+    public void StartInternet()
+    {
+        SceneManager.LoadScene("GameScene");
+    }
     public void ExitGame(int i)
     {
         if(i == 0)
