@@ -69,8 +69,6 @@ public abstract class PlayerBase
         if (input.IsPickUp) { _inputMask |= PacketData.eInputMask.PickUp; }
         if (input.IsThrow) { _inputMask |= PacketData.eInputMask.Throw; }
         if (input.IsJump) { _inputMask |= PacketData.eInputMask.Jump; }
-        // 使い終わったPlayerInputの状態は初期化
-        // input.Reset();
 
         // forceを計算する
         _playerController.UpdateForce(this);
@@ -154,9 +152,6 @@ public class NetPlayer : PlayerBase
 
         //  表示モデルの種類
         _playerController.Kind = (eKind)getByte[offset]; offset += sizeof(byte);
-
-        // 入力マスクをクリア
-        //_inputMask = 0;
 
         // 状態マスクは参照済（すでに使われていたら）上書き、未参照（まだつかわれていなければ）ORを取ることで前の状態も残す
         if (_isStateUsed) { _stateMask = (PacketData.eStateMask)getByte[offset]; offset += sizeof(byte); }

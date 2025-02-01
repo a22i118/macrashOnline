@@ -32,7 +32,7 @@ public class PlayerInput : MonoBehaviour
         {
             _isThrow = true;
         }
-        else if (triggerValue <= 0.0f)
+        else
         {
             _isThrow = false;
         }

@@ -48,7 +48,7 @@ public class MakuraController : ColorChanger
     public void Sleep()
     {
         // Colliderを無効化
-        GetComponent<SphereCollider>().enabled = false;
+        GetComponent<MeshCollider>().enabled = false;
         // Rigidbodyを無効化（位置を姿勢指定のみで動かす）
         GetComponent<Rigidbody>().isKinematic = true;
     }
@@ -57,19 +57,22 @@ public class MakuraController : ColorChanger
     public void WakeUp()
     {
         // Colliderを有効化
-        GetComponent<SphereCollider>().enabled = true;
+        _col.enabled = true;
         // Rigidbodyを有効化
-        GetComponent<Rigidbody>().isKinematic = false;
+        _rb.isKinematic = false;
+    }
+    private void Awake()
+    {
+        _rb = GetComponent<Rigidbody>();
+        _trailPos = transform.position;
+        _col = GetComponent<Collider>();
+        _initialRotation = transform.rotation;
+        _scoreManager = FindObjectOfType<ScoreManager>();
+        _groundLayer |= _hutonLayer;
     }
     void Start()
     {
-        // _rb = GetComponent<Rigidbody>();
 
-        // _trailPos = transform.position;
-        // _col = GetComponent<Collider>();
-        // _initialRotation = transform.rotation;
-        // _scoreManager = FindObjectOfType<ScoreManager>();
-        // _groundLayer |= _hutonLayer;
     }
     void Update()
     {

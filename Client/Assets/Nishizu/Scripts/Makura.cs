@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Makura
@@ -8,26 +9,16 @@ public class Makura
     // MakuraのGameObject
     protected GameObject _obj = null;
     protected MakuraController _makuraController = null;
-    // 前フレームの位置
-    protected Vector3 _lastPos = Vector3.zero;
-    // 前フレームの姿勢
-    protected Quaternion _lastDir = Quaternion.identity;
-    // 移動速度
-    //protected Vector3 _force = Vector3.zero;
     // 状態を表すマスク
     protected PacketData.eStateMask _stateMask = 0;
     // eStateMaskが参照されたらtrueになるマスク
     protected bool _isStateUsed = true;
-
     public byte Id { get { return _id; } set { _id = value; } }
     public GameObject Obj { get { return _obj; } set { _obj = value; } }
-
-    public Makura(GameObject prefab, Transform parent, bool isSleep)
+    public Makura(GameObject prefab, bool isSleep)
     {
         // PrefabからGameObjectを作成
         _obj = GameObject.Instantiate(prefab);
-        // parentの子にする
-        _obj.transform.parent = parent.transform;
         // コンポーネント
         _makuraController = _obj.GetComponent<MakuraController>();
 
@@ -56,10 +47,14 @@ public class Makura
         if (_isStateUsed) { _stateMask = (PacketData.eStateMask)getByte[offset]; offset += sizeof(byte); }
         else { _stateMask |= (PacketData.eStateMask)getByte[offset]; offset += sizeof(byte); }
 
-        // 位置と姿勢を保存
-        _lastPos = _obj.transform.position;
-        _lastDir = _obj.transform.rotation;
-
+        if ((_stateMask & PacketData.eStateMask.SetActive) != 0)
+        {
+            _obj.SetActive(true);
+        }
+        else
+        {
+            _obj.SetActive(false);
+        }
         return offset;
     }
 }

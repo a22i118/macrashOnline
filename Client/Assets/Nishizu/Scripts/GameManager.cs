@@ -261,7 +261,7 @@ public class GameManager : MonoBehaviour
 
                 // マクラが足りない場合は補充する
                 for (int i = _makuras.Count; i < makuraNum; i++)
-                    _makuras.Add(new Makura(_makuraPrefab, this.transform, true));
+                    _makuras.Add(new Makura(_makuraPrefab, true));
 
                 // マクラ情報を読み込む
                 for (int i = 0; i < makuraNum; i++)
@@ -299,54 +299,12 @@ public class GameManager : MonoBehaviour
         // Playerの更新
         player.Update(_playerInput);
 
-        // // 弾丸
-        // {
-        //     if (player.IsFire)
-        //     {
-        //         // 弾丸を作成
-        //         Bullet bullet = new Bullet(_bulletPrefab, player.Obj.transform.parent, false);
-        //         {
-        //             // 衝突判定用レイヤーをプレイヤーをプレイヤーと同じにする
-        //             bullet.Obj.layer = player.Obj.layer;
-        //             // 位置と姿勢はプレイヤーからコピー
-        //             bullet.Obj.transform.position = player.Obj.transform.Find("Model").transform.position;
-        //             bullet.Obj.transform.rotation = player.Obj.transform.Find("Model").transform.rotation;
-        //             // 初速度を与える
-        //             Vector3 force = bullet.Obj.transform.rotation * new Vector3(0, 0, 1000);
-        //             bullet.Obj.GetComponent<Rigidbody>().AddForce(force);
-        //         }
-        //         // 弾丸管理リストに登録
-        //         _bullets.Add(bullet);
-        //     }
-
-        //     // 削除リスト
-        //     List<Bullet> listDelete = new List<Bullet>();
-
-        //     // 全ての弾丸
-        //     foreach (var bullet in _bullets)
-        //     {
-        //         BulletController bc = bullet.Obj.GetComponent<BulletController>();
-        //         // 弾丸の寿命が尽きていたら削除リストに登録する
-        //         if (bc.LifeTime < 0.0f)
-        //         {
-        //             listDelete.Add(bullet);
-        //         }
-        //     }
-
-        //     // 削除リストに詰まれた弾丸を削除する
-        //     foreach (var item in listDelete)
-        //     {
-        //         Destroy(item.Obj.gameObject);
-        //         _bullets.Remove(item);
-        //     }
-        // }
-
         // タイマー、入力、フォースをパケットに詰む
         _paket.Push(_globalTimer, player.InputMask, player.Movement);
-        if ((player.InputMask & PacketData.eInputMask.PickUp) != 0)
-        {
-            Debug.Log("拾い");
-        }
+        // if ((player.InputMask & PacketData.eInputMask.PickUp) != 0)
+        // {
+        //     Debug.Log("拾い");
+        // }
 
         // IDが振られていたらサーバーにデータを送信
         if (_userId != Byte.MaxValue)
@@ -365,7 +323,6 @@ public class GameManager : MonoBehaviour
         // {
         //     // カメラの注視点にプレイヤー位置をコピー
         //     _cameraTarget.transform.position = player.Obj.transform.position;
-
         //     // プレイヤー切り替えやリセットが発生していたら
         //     if (player.IsChangeCharacter | player.IsReset)
         //     {

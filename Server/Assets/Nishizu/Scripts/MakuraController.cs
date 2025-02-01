@@ -17,6 +17,7 @@ public class MakuraController : ColorChanger
     private bool _isCharge = false;
     private bool _isCounterAttack = false;
     private bool _isHitCoolTimeOne = false;
+    private bool _isSetActive = true;
     private float _vibrationStrength = 0.05f;
     private float _vibrationTime = 0.2f;
     private float _throwedTime = 3.0f;
@@ -35,6 +36,7 @@ public class MakuraController : ColorChanger
     public bool IsCharge { get => _isCharge; set => _isCharge = value; }
     public bool IsCounterAttack { get => _isCounterAttack; set => _isCounterAttack = value; }
     public bool IsGameStart { get => _isGameStart; set => _isGameStart = value; }
+    public bool IsSetActive { get => _isSetActive; set => _isSetActive = value; }
     public float ThrowedTime { get => _throwedTime; set => _throwedTime = value; }
     public GameObject Thrower { get => _thrower; set => _thrower = value; }
     public ScaleType CurrentScaleType { get => _currentScaleType; set => _currentScaleType = value; }
@@ -47,8 +49,11 @@ public class MakuraController : ColorChanger
     }
     void Start()
     {
-         _rb = GetComponent<Rigidbody>();
 
+    }
+    private void Awake()
+    {
+        _rb = GetComponent<Rigidbody>();
         _trailPos = transform.position;
         _col = GetComponent<Collider>();
         _initialRotation = transform.rotation;
@@ -97,10 +102,12 @@ public class MakuraController : ColorChanger
         get
         {
             PacketData.eStateMask stateMask = 0;
-            // if (IsGround) { stateMask |= PacketData.eStateMask.Ground; }
+             if (IsSetActive) { stateMask |= PacketData.eStateMask.SetActive; }
             return stateMask;
         }
     }
+
+
     public byte[] GetBytes()
     {
         Vector3 v = transform.position;
@@ -117,6 +124,7 @@ public class MakuraController : ColorChanger
         list.AddRange(BitConverter.GetBytes(q.y));
         list.AddRange(BitConverter.GetBytes(q.z));
         list.AddRange(BitConverter.GetBytes(q.w));
+        list.Add((byte)SendState);
 
         return list.ToArray();
     }

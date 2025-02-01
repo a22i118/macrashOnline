@@ -101,7 +101,7 @@ namespace PlayerCS
         private float _jumpforce = 0.0f;
         // Modelオブジェクト
         private GameObject model = null;
-        // Modelオブジェクトの子（TT_demo_policeとTT_demo_zombieノード）
+        // Modelオブジェクトの子
         private List<GameObject> children = new List<GameObject>();
         public Player.eKind Kind { get { return _kind; } set { _kind = value; } }
         public float Speed { set { _speed = value; } }
@@ -156,7 +156,7 @@ namespace PlayerCS
         {
             foreach (GameObject obj in children)
             {
-                // 現在のKind（policeまたはzombie）を名前に含むノードだけを有効にする（他を消す）
+                // 現在のKindを名前に含むノードだけを有効にする（他を消す）
                 obj.SetActive(obj.name.Contains(_kind.ToString()));
 
                 // 有効化されたノードにアニメーション速度を反映する

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -25,13 +26,13 @@ public class PacketData
         Throw = 1 << 1,
         PickUp = 1 << 2,
         Menu = 1 << 3,
-        // ChangeCharacter = 1 << 2,
     }
 
     [Flags]
     public enum eStateMask : byte
     {
         Ground = 1 << 4,
+        SetActive = 1 << 5,
     }
 
     private byte _timer = 0;

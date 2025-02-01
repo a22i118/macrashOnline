@@ -149,50 +149,53 @@ public class Player
                             _throwKeyHoldTime = Time.time;
                             _isThrowChargeTime = true;
                         }
-                    //}
-                    //else if (_isThrowChargeTime)
-                    //{
+                    }
+                    else if (_isThrowChargeTime)
+                    {
                         float holdTime = Time.time - _throwKeyHoldTime;
 
-                        //if (holdTime < c_throwKeyLongPressTime)
+                        float forwardForce = 0.0f;
+                        float upwardForce = 0.0f;
+                        float throwDistance = 0.0f;
+                        float throwHeight = 0.0f;
+                        if (holdTime < c_throwKeyLongPressTime)
                         {
-                            if (_currentMakuras[0] != null)
+                            //if (_makuraController.CurrentColorType == ColorChanger.ColorType.Nomal)
                             {
-                                Rigidbody rb = _currentMakuras[0].GetComponent<Rigidbody>();
-                                MakuraController _makuraController = _currentMakuras[0].GetComponent<MakuraController>();
-                                rb.isKinematic = true;
-                                rb.isKinematic = false;
+                                forwardForce = 800.0f;
+                                upwardForce = 200.0f;
+                                throwDistance = 1.3f;
+                                throwHeight = 1.0f;
 
-                                Vector3 throwDirection = _obj.transform.forward;
-
-                                float forwardForce = 0.0f;
-                                float upwardForce = 0.0f;
-                                float throwDistance = 0.0f;
-                                float throwHeight = 0.0f;
-                                //if (_makuraController.CurrentColorType == ColorChanger.ColorType.Nomal)
-                                {
-                                    forwardForce = 800.0f;
-                                    upwardForce = 200.0f;
-                                    throwDistance = 1.3f;
-                                    throwHeight = 1.0f;
-                                    Vector3 throwPosition = _obj.transform.position + throwDirection * throwDistance + Vector3.up * throwHeight;
-
-
-                                    _currentMakuras[0].transform.position = throwPosition;
-                                    _currentMakuras[0].SetActive(true);
-                                    _makuraController.IsThrow = true;
-                                    _makuraController.Thrower = _obj.gameObject;
-
-                                    rb.AddForce(throwDirection * forwardForce + Vector3.up * upwardForce);
-                                    rb.maxAngularVelocity = 100;
-                                    rb.AddTorque(Vector3.up * 120.0f);
-                                    Debug.Log("ここ");
-                                    _currentMakuras.RemoveAt(0);
-                                }
                             }
+
                         }
+                        else
+                        {
+                            forwardForce = 300.0f;
+                            upwardForce = 700.0f;
+                            throwDistance = 0.5f;
+                            throwHeight = 2.0f;
+                        }
+                        Rigidbody rb = _currentMakuras[0].GetComponent<Rigidbody>();
+                        MakuraController _makuraController = _currentMakuras[0].GetComponent<MakuraController>();
+                        rb.isKinematic = true;
+                        rb.isKinematic = false;
+
+                        Vector3 throwDirection = _obj.transform.forward;
+                        Vector3 throwPosition = _obj.transform.position + throwDirection * throwDistance + Vector3.up * throwHeight;
 
 
+                        _currentMakuras[0].transform.position = throwPosition;
+                        _currentMakuras[0].SetActive(true);
+                        _makuraController.IsThrow = true;
+                        _makuraController.IsSetActive = true;
+                        _makuraController.Thrower = _obj.gameObject;
+
+                        rb.AddForce(throwDirection * forwardForce + Vector3.up * upwardForce);
+                        rb.maxAngularVelocity = 100;
+                        rb.AddTorque(Vector3.up * 120.0f);
+                        _currentMakuras.RemoveAt(0);
                         _isThrowChargeTime = false;
                     }
                 }
@@ -334,6 +337,8 @@ public class Player
 
                 currentMakura = collider.gameObject;
                 currentMakura.transform.SetParent(null);
+                currentMakura.GetComponent<MakuraController>().IsSetActive = false;
+
                 currentMakura.SetActive(false);
 
                 _currentMakuras.Add(currentMakura);
@@ -347,4 +352,5 @@ public class Player
         yield return new WaitForSeconds(0.5f);
         _isThrowCoolTime = false;
     }
+
 }

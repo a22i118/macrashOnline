@@ -52,6 +52,9 @@ public class Server : MonoBehaviour
 
         // 待ち受け開始（受信があったときOnReceivedが呼ばれる）
         _udpClient.BeginReceive(OnReceived, _udpClient);
+
+
+        _makuras.Add(Instantiate(_makuraPrefab, new Vector3(0, 0, 4), Quaternion.identity));
     }
 
     // 一定の間隔でループさせるためにUpdateではなくFixedUpdateを使う
@@ -68,47 +71,7 @@ public class Server : MonoBehaviour
         foreach (KeyValuePair<byte, Player> player in _players)
         {
             player.Value.Update(_playerPrefab, transform);
-
-            // if (player.Value.IsFire && _bullets.Count < 255)
-            // {
-            //     // 弾丸を作成
-            //     GameObject bullet = GameObject.Instantiate(_bulletPrefab);
-            //     {
-            //         // 衝突判定用レイヤーをプレイヤーをプレイヤーと同じにする
-            //         bullet.layer = player.Value.Obj.layer;
-            //         // 位置と姿勢はプレイヤーからコピー
-            //         bullet.transform.position = player.Value.Obj.transform.position;
-            //         bullet.transform.rotation = player.Value.Obj.transform.rotation;
-            //         // 初速度を与える
-            //         Vector3 force = bullet.transform.rotation * new Vector3(0, 0, 1000);
-            //         bullet.GetComponent<Rigidbody>().AddForce(force);
-            //     }
-            //     // 弾丸管理リストに登録
-            //     _bullets.Add(bullet);
-            // }
         }
-        // {
-        //     // 削除リスト
-        //     List<GameObject> listDelete = new List<GameObject>();
-
-        //     // 全ての弾丸
-        //     foreach (var bullet in _bullets)
-        //     {
-        //         BulletController bc = bullet.GetComponent<BulletController>();
-        //         // 弾丸の寿命が尽きていたら削除リストに登録する
-        //         if (bc.LifeTime < 0.0f)
-        //         {
-        //             listDelete.Add(bullet);
-        //         }
-        //     }
-
-        //     // 削除リストに詰まれた弾丸を削除する
-        //     foreach (var item in listDelete)
-        //     {
-        //         Destroy(item.gameObject);
-        //         _bullets.Remove(item);
-        //     }
-        // }
         {
             List<byte> listRemove = new List<byte>();
 

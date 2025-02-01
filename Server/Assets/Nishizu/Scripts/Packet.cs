@@ -31,6 +31,7 @@ public class PacketData
     public enum eStateMask : byte
     {
         Ground = 1 << 4,
+        SetActive= 1 << 5,
     }
 
     private byte _timer = 0;
