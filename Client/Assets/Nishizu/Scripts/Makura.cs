@@ -33,9 +33,6 @@ public class Makura
         float pz = System.BitConverter.ToSingle(getByte, offset); offset += sizeof(float);
         _obj.transform.position = new Vector3(px, py, pz);
 
-        // 移動速度
-        float speed = System.BitConverter.ToSingle(getByte, offset); offset += sizeof(float);
-
         // 姿勢
         float rx = System.BitConverter.ToSingle(getByte, offset); offset += sizeof(float);
         float ry = System.BitConverter.ToSingle(getByte, offset); offset += sizeof(float);

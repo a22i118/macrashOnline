@@ -119,7 +119,7 @@ public class MakuraController : ColorChanger
         list.AddRange(BitConverter.GetBytes(v.x));
         list.AddRange(BitConverter.GetBytes(v.y));
         list.AddRange(BitConverter.GetBytes(v.z));
-        list.AddRange(BitConverter.GetBytes(speed));
+
         list.AddRange(BitConverter.GetBytes(q.x));
         list.AddRange(BitConverter.GetBytes(q.y));
         list.AddRange(BitConverter.GetBytes(q.z));

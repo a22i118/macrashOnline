@@ -39,6 +39,7 @@ namespace PlayerCS
         private bool _isGameEndCheck = false;
         private bool _isSpeedUp = false;
         private bool _isTeacherMakuraHit = false;
+        private bool _isMoved = false;
         private int _playerIndex;
         private const float C_gravity = -25.0f;
         private float _speed = 5.0f;//プレイヤーの移動速度
@@ -161,24 +162,33 @@ namespace PlayerCS
 
                 // 有効化されたノードにアニメーション速度を反映する
                 Animator anim = obj.GetComponent<Animator>();
+                // Debug.Log("" + _speed);
 
-                if (obj.activeSelf)
+                // if (obj.activeSelf)
+                // {
+                //     if (anim)
+                //     {
+                //         if (_speed > 0.1f)
+                //         {
+                //             // 0.25乗しているのは単なる調整のため
+                //             anim.SetBool("Walk", true);
+                //             float animSpeed = Mathf.Pow(_speed, 0.5f);
+                //             anim.SetFloat("Speed", animSpeed);
+                //             // anim.SetFloat("Speed", _speed);
+                //         }
+                //         else
+                //         {
+                //             anim.SetBool("Walk", false);
+                //         }
+                //     }
+                // }
+                if (_isMoved)
                 {
-                    if (anim)
-                    {
-                        if (_speed > 0.1f)
-                        {
-                            // 0.25乗しているのは単なる調整のため
-                            anim.SetBool("Walk", true);
-                            float animSpeed = Mathf.Pow(_speed, 0.5f);
-                            anim.SetFloat("Speed", animSpeed);
-                            // anim.SetFloat("Speed", _speed);
-                        }
-                        else
-                        {
-                            anim.SetBool("Walk", false);
-                        }
-                    }
+                    anim.SetBool("Walk", true);
+                }
+                else
+                {
+                    anim.SetBool("Walk", false);
                 }
             }
 
@@ -380,6 +390,9 @@ namespace PlayerCS
 
             // _movement = new Vector3(player.InputMovement.x, 0, player.InputMovement.y);
             _movement = player.InputMovement;
+
+            _isMoved = (_movement != Vector2.zero) ? true : false;
+
             // _force = baseForce * Time.deltaTime * (vForward * inputValue.y + vRight * inputValue.x);
             // ジャンプ
             // if (player.IsJump && IsGround())

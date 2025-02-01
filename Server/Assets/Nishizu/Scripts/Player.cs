@@ -117,10 +117,7 @@ public class Player
         }
 
         _inputMask = inputMask;
-        if ((_inputMask & PacketData.eInputMask.Throw) != 0)
-        {
-            Debug.Log("投げ");
-        }
+
         _stateMask = 0;
 
         if (_obj == null)
@@ -135,7 +132,6 @@ public class Player
         if (IsCheckMakura() && IsPickUp)
         {
             PickUpMakura();
-            Debug.Log("拾う");
         }
         {
             // if (!_isThrowCoolTime)
@@ -278,7 +274,11 @@ public class Player
         }
         else
         {
-            _isJumping = false;
+            if (_isJumping)
+            {
+                _isJumping = false;
+            }
+
         }
 
         if (_isJumping)
